@@ -2,7 +2,13 @@ cmake_minimum_required(VERSION 2.8)
 project(Cluster)
 enable_testing()
 
-add_definitions (-pedantic -std=c99 -g)
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Debug CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+              FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
+SET (CMAKE_C_FLAGS "-pedantic -std=c99 -O0")
 
 add_executable (test_quadtree_init quadtree.c test_quadtree_init.c)
 add_test(test_quadtree_init test_quadtree_init)
@@ -12,5 +18,8 @@ add_test(test_quadtree_node_contains test_quadtree_node_contains)
 
 add_executable (test_quadtree_insert_simple test_quadtree_insert_simple.c quadtree.c)
 add_test (test_quadtree_insert_simple test_quadtree_insert_simple)
+
+add_executable (test_quadtree_subdivide_1 test_quadtree_subdivide_1.c quadtree.c)
+add_test (test_quadtree__subdivide_1 test_quadtree_subdivide_1)
 
 #add_executable (Cluster quadtree.c)
