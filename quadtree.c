@@ -47,6 +47,7 @@ int quadtree_alloc(QUADTREE **ref) {
 
 int _quadtree_node_init(QUADTREE_NODE **node, unsigned int minx, unsigned int miny,
                         unsigned int maxx, unsigned int maxy) {
+    // Unit test: covered by test_quadtree_init.c 
     if (_qn_alloc(node)) {
         return 1; 
     }
@@ -67,17 +68,18 @@ int quadtree_init(QUADTREE **ref, unsigned int xmax, unsigned int ymax) {
     if (quadtree_alloc(ref)) {
         return 1;
     }
-    
+
     return _quadtree_node_init(&((*ref)->root), 0, 0, xmax, ymax);
 }
 
 int _quadtree_node_contains(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
+    // Unit test: test_quadtree_node_contains.c 
     unsigned int minx, miny, maxx, maxy; 
     minx = n->region.nw.x; 
     miny = n->region.nw.y; 
     maxx = n->region.se.x;
     maxy = n->region.se.y; 
-    return ((x >= minx) && (x < maxx)) && ((y >= miny) && (y < maxy));
+    return ((x > minx) && (x <= maxx)) && ((y > miny) && (y <= maxy));
 }
 
 int _quadtree_node_subdivide(QUADTREE_NODE *n) {
