@@ -56,8 +56,11 @@ int _quadtree_node_init(QUADTREE_NODE **node, unsigned int minx, unsigned int mi
     (*node)->region.nw.y = miny; 
     (*node)->region.se.x = maxx;
     (*node)->region.se.y = maxy;
-    (*node)->region.width = maxx - minx;
-    (*node)->region.height = maxy - miny;
+    (*node)->region.width = maxx - minx + 1;
+    (*node)->region.height = maxy - miny + 1;
+
+    memset((*node)->points, 0xFFFFFFFF, sizeof(QUADTREE_POINT) * 4);
+
     return 0;
 }
 
@@ -73,13 +76,13 @@ int quadtree_init(QUADTREE **ref, unsigned int xmax, unsigned int ymax) {
 }
 
 int _quadtree_node_contains(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
-    // Unit test: test_quadtree_node_contains.c 
+    // Unit test: test_quadtree_node_contains.c
     unsigned int minx, miny, maxx, maxy; 
     minx = n->region.nw.x; 
     miny = n->region.nw.y; 
     maxx = n->region.se.x;
     maxy = n->region.se.y; 
-    return ((x > minx) && (x <= maxx)) && ((y > miny) && (y <= maxy));
+    return ((x >= minx) && (x < maxx)) && ((y >= miny) && (y < maxy));
 }
 
 int _quadtree_node_subdivide(QUADTREE_NODE *n) {
@@ -122,7 +125,7 @@ int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
     if (!_quadtree_node_contains(n, x, y)) return 0;
 
     // If there is space in this node, add the object here 
-    memset(node_test, sizeof node_test, 0);
+    memset(node_test, 0xFFFFFFFF, sizeof(QUADTREE_POINT));
     for (i = 0; i < 4; i++) {
         if (memcmp(node_test, n->points + i, sizeof(QUADTREE_POINT))) {
             continue;
