@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(Cluster)
+project(Cluster C)
 enable_testing()
 
 IF(NOT CMAKE_BUILD_TYPE)
@@ -8,7 +8,10 @@ IF(NOT CMAKE_BUILD_TYPE)
               FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET (CMAKE_C_FLAGS "-pedantic -std=c99 -O0")
+SET (CMAKE_C_FLAGS "-pedantic -std=c99 -O0 -ggdb")
+SET (CMAKE_LD_FLAGS "-g")
+
+add_definitions(-Wall -W -g -O0)
 
 add_executable (test_quadtree_init quadtree.c test_quadtree_init.c)
 add_test(test_quadtree_init test_quadtree_init)

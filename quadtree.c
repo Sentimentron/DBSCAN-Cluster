@@ -5,7 +5,7 @@
 #include "quadtree.h"
 
 #define NULLCHECK(ptr) if (ptr == NULL) { \
-    fprintf(stderr, "%s:%s: %s", \
+    fprintf(stderr, "%s:%d: %s", \
         __FILE__, __LINE__, \
         "NULL pointer cannot be passed here."); \
     exit(2); \
@@ -13,13 +13,13 @@
 
 #define SAFE_MALLOC(nmemb, size, ref) *ref = calloc(nmemb, size); \
     if (*ref == NULL) { \
-        fprintf(stderr, "%s:%s: %s", \
+        fprintf(stderr, "%s:%d: %s", \
             __FILE__, __LINE__, \
             "NULL pointer cannot be passed here."); \
         exit(2); \
     } 
 
-int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y);
+int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y, int subdivide);
 
 //
 // Allocation functions
@@ -56,8 +56,8 @@ int _quadtree_node_init(QUADTREE_NODE **node, unsigned int minx, unsigned int mi
     (*node)->region.nw.y = miny; 
     (*node)->region.se.x = maxx;
     (*node)->region.se.y = maxy;
-    (*node)->region.width = maxx - minx + 1;
-    (*node)->region.height = maxy - miny + 1;
+    (*node)->region.width = maxx - minx;
+    (*node)->region.height = maxy - miny;
 
     memset((*node)->points, 0xFFFFFFFF, sizeof(QUADTREE_POINT) * 4);
 
@@ -88,6 +88,7 @@ int _quadtree_node_contains(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
 int _quadtree_node_subdivide(QUADTREE_NODE *n) {
     QUADTREE_NODE *nw, *ne, *sw, *se; 
     unsigned int x, y, hw, hh, i;
+    QUADTREE_POINT points[4];
 
     // Generate the new boundaries
     x = n->region.nw.x;
@@ -96,10 +97,11 @@ int _quadtree_node_subdivide(QUADTREE_NODE *n) {
     hh = n->region.height / 2;
 
     // Create the new regions 
-    if (_quadtree_node_init(&nw, x,      y - hh,     x + hw,     y))      return 1;
-    if (_quadtree_node_init(&ne, x + hw, y - hh,     x + hw * 2, y))      return 1;
-    if (_quadtree_node_init(&sw, x,      y - hh * 2, x + hw,     y - hh)) return 1;
-    if (_quadtree_node_init(&se, x + hw, y - hh * 2, x + hw * 2, y - hh)) return 1; 
+
+    if (_quadtree_node_init(&nw, x, y, x + hw, y + hh)) return 1;
+    if (_quadtree_node_init(&ne, x + hw, y, x + hw + hw, y + hh)) return 1;
+    if (_quadtree_node_init(&sw, x, y + hh, x + hw, y + hh + hh)) return 1;
+    if (_quadtree_node_init(&se, x + hw, y + hh, x + hw + hw, y + hh + hh)) return 1;
 
     // Assign the new nodes 
     n->nw = nw; 
@@ -108,7 +110,11 @@ int _quadtree_node_subdivide(QUADTREE_NODE *n) {
     n->se = se; 
 
     for (i = 0; i < 4; i++) {
-        if(!_quadtree_insert(n, n->points[i].x, n->points[i].y)) {
+        points[i] = n->points[i];
+    }
+
+    for (i = 0; i < 4; i++) {
+        if(!_quadtree_insert(n, points[i].x, points[i].y, 0)) {
             return 1;
         }
     }
@@ -116,7 +122,7 @@ int _quadtree_node_subdivide(QUADTREE_NODE *n) {
     return 0;
 }
 
-int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
+int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y, int subdivide) {
     
     int i;
     char node_test[sizeof(QUADTREE_POINT)];
@@ -134,16 +140,17 @@ int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
         return 1;
     }
     // Otherwise, subdivide the tree...
-    if (_quadtree_node_subdivide(n)) {
-        fprintf(stderr, "Subdivision error!\n");
-        return 0;
+    if (subdivide) {
+        if (_quadtree_node_subdivide(n)) {
+            fprintf(stderr, "Subdivision error!\n");
+            return 0;
+        }
     }
-
     // And add it to the right node 
-    if (!_quadtree_insert(n->nw, x, y)) return 1;
-    if (!_quadtree_insert(n->ne, x, y)) return 1;
-    if (!_quadtree_insert(n->sw, x, y)) return 1;
-    if (!_quadtree_insert(n->se, x, y)) return 1;
+    if (_quadtree_insert(n->nw, x, y, subdivide)) return 1;
+    if (_quadtree_insert(n->ne, x, y, subdivide)) return 1;
+    if (_quadtree_insert(n->sw, x, y, subdivide)) return 1;
+    if (_quadtree_insert(n->se, x, y, subdivide)) return 1;
 
     return 0;
 }
@@ -158,7 +165,7 @@ int _quadtree_node_isleaf(QUADTREE_NODE *n) {
 }
 
 int quadtree_insert(QUADTREE *tree, unsigned int x, unsigned int y) {
-    return _quadtree_insert(tree->root, x, y);
+    return _quadtree_insert(tree->root, x, y, 1);
 }
 
 int _quadtree_query(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
@@ -184,5 +191,5 @@ int _quadtree_query(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
 }
 
 int quadtree_query(QUADTREE *tree, unsigned int x, unsigned int y) {
-
+    return _quadtree_query(tree->root, x, y);
 }
