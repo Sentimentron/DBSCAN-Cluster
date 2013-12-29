@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6 C)
+cmake_minimum_required(VERSION 2.8)
 project(Cluster)
 
 add_definitions (-pedantic -std=c99)
