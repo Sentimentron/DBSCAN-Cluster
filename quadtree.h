@@ -6,7 +6,7 @@ typedef struct {
 } QUADTREE_POINT;
 
 typedef struct {
-    QUADTREE_POINT ne, sw; 
+    QUADTREE_POINT nw, se; 
     unsigned int width, height;
 } QUADTREE_REGION;
 
@@ -22,7 +22,6 @@ typedef struct {
 
 int quadtree_query (QUADTREE *tree, unsigned int x, unsigned int y);
 int quadtree_insert(QUADTREE *tree, unsigned int x, unsigned int y);
-int quadtree_alloc (QUADTREE **ref);
-int quadtree_free  (QUADTREE *ref);
+int quadtree_init(QUADTREE **ref, unsigned int xmax, unsigned int ymax);
 
 #endif
