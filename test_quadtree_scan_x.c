@@ -7,7 +7,6 @@
 
 int quadtree_scan_x(QUADTREE *tree, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size);
 
-
 unsigned int nextpow2(int of) {
     unsigned int ret; 
     for (ret = 1; ret < of; ret *= 2);
@@ -22,6 +21,29 @@ int max(int *arr, int len) {
         }
     }
     return max; 
+}
+
+int comp(int *arg1, unsigned int *arg2, int length1, int length2) {
+    // Compare the original random array with the one scanned
+    // Return 1 if they contain the same elements, 0 otherwise
+    int i, j;
+    for (i = 0; i < length1; i++) {
+        int icur = arg1[i];
+        for (j = 0; j < length2; j++) {
+            int jcur = arg2[j];
+            if (jcur == icur) {
+                arg2[j] = 0;
+            }
+        }
+    }
+
+    for (i = 0; i < length2; i++) {
+        if (arg2[i]) {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 int main(int argc, char **argv) {
@@ -74,7 +96,12 @@ int main(int argc, char **argv) {
     // a partially-filled search array
     p = 0;
     assert(quadtree_scan_x(ref, 13, scan, &p, 32) == 1);
-    // assert(!memcmp(scan, random, 32 * sizeof(unsigned int)));
+    assert(comp(random, scan, 64, 32));
+    
+    // Check for a successful scan
+    p = 0;
+    assert(!quadtree_scan_x(ref, 13, scan, &p, 64));
+    assert(comp(random, scan, 64, 64));
 
     return 0;
 }
