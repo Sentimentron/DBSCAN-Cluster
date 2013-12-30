@@ -181,14 +181,13 @@ int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y, int subdi
     if (!_quadtree_node_contains(n, x, y)) return 0;
 
     if (_quadtree_node_isleaf(n)) {
-        return _quadtree_insert_into_internal(n, x, y);
-    }
-
-    // Otherwise, subdivide the tree if permitted...
-    if (subdivide) {
-        if (_quadtree_node_subdivide(n)) {
-            fprintf(stderr, "Subdivision error!\n");
-            return 0;
+        if(_quadtree_insert_into_internal(n, x, y)) return 1;
+        // Otherwise, subdivide the tree if permitted...
+        if (subdivide) {
+            if (_quadtree_node_subdivide(n)) {
+                fprintf(stderr, "Subdivision error!\n");
+                return 0;
+            }
         }
     }
 
