@@ -37,4 +37,7 @@ add_test (test_quadtree_insert_query_rand test_quadtree_insert_query_rand)
 add_executable(test_quadtree_scan_x test_quadtree_scan_x.c quadtree.c)
 add_test (test_quadtree_scan_x test_quadtree_scan_x)
 
+add_executable(test_quadtree_scan_y test_quadtree_scan_y.c quadtree.c)
+add_test (test_quadtree_scan_y test_quadtree_scan_y)
+
 #add_executable (Cluster quadtree.c)

@@ -279,30 +279,30 @@ int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsign
 
 }
 
-/*int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsigned int *p, size_t arr_size) {
+int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsigned int *p, size_t arr_size) {
 
     QUADTREE_POINT *point;
     int i;
 
     // Check the boundaries
-    if (y > n->region.nw.y) return 0;
-    if (y < n->region.se.x) return 0;
+    if (y < n->region.nw.y) return 0;
+    if (y > n->region.se.x) return 0;
 
     if (!_quadtree_node_isleaf(n)) {
         // Recurse to children nodes 
-        if(_quadtree_scan_x(n->nw, x, out, p, arr_size)) return 1;
-        if(_quadtree_scan_x(n->ne, x, out, p, arr_size)) return 1;
-        if(_quadtree_scan_x(n->sw, x, out, p, arr_size)) return 1;
-        if(_quadtree_scan_x(n->se, x, out, p, arr_size)) return 1;
+        if(_quadtree_scan_y(n->nw, y, out, p, arr_size)) return 1;
+        if(_quadtree_scan_y(n->ne, y, out, p, arr_size)) return 1;
+        if(_quadtree_scan_y(n->sw, y, out, p, arr_size)) return 1;
+        if(_quadtree_scan_y(n->se, y, out, p, arr_size)) return 1;
         return 0;
     }
 
     for (i = 0; i < 4; i++) {
         // Check each point in this leaf
         point = n->points + i;
-        if (point->x != x) continue;
+        if (point->y != y) continue;
         if (*p < arr_size) {
-            *(out + *p) = point->y; 
+            *(out + *p) = point->x; 
             *p = *p + 1; 
         }
         else {
@@ -313,8 +313,11 @@ int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsign
     return 0;
 
 }
-*/
 
 int quadtree_scan_x(QUADTREE *tree, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size) {
     return _quadtree_scan_x(tree->root, x, out, p, arr_size);
+}
+
+int quadtree_scan_y(QUADTREE *tree, unsigned int y, unsigned int *out, unsigned int *p, size_t arr_size) {
+    return _quadtree_scan_y(tree->root, y, out, p, arr_size);
 }
