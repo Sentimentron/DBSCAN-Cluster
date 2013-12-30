@@ -3,8 +3,10 @@
 #include <assert.h>
 #include <time.h>
 
-
 #include "quadtree.h"
+
+int quadtree_scan_x(QUADTREE *tree, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size);
+
 
 unsigned int nextpow2(int of) {
     unsigned int ret; 
@@ -25,7 +27,7 @@ int max(int *arr, int len) {
 int main(int argc, char **argv) {
 
     int random[64], i, j;
-    unsigned int s;
+    unsigned int s, p, scan[64];
     QUADTREE *ref = NULL; 
 
     // Configure random numbers 
@@ -57,20 +59,22 @@ int main(int argc, char **argv) {
     assert(!quadtree_init(&ref, s, s));
 
     for (i = 0; i < 64; i++) {
-        // Insert the random number 
-        assert(quadtree_insert(ref, 0, random[i]));
+        // Insert the random numbers at a constant x value
+        assert(quadtree_insert(ref, 13, random[i]));
     }
 
-    for (i = 0; i < 64; i++) {
-        // Check retrieval
-        assert(quadtree_query(ref, 0, random[i]));
-    }
+    // Expect a scan along an x-offset with no values
+    // will result in a non-incremented pointer
+    p = 0;
+    assert(!quadtree_scan_x(ref, 15, scan, &p, 64));
+    assert(p == 0);
 
-    for (i = 0; i < 64; i++) {
-        if (!random[i]) continue;
-        // Check retrieval
-        assert(!quadtree_query(ref, random[i], random[i]));
-    }
+    // Expect a scan along the correct offset without
+    // sufficient memory to return error code 1, and
+    // a partially-filled search array
+    p = 0;
+    assert(quadtree_scan_x(ref, 13, scan, &p, 32) == 1);
+    // assert(!memcmp(scan, random, 32 * sizeof(unsigned int)));
 
     return 0;
 }

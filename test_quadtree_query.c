@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
     assert(quadtree_query(ref, 0, 3));
     assert(quadtree_query(ref, 1, 2));
     assert(quadtree_query(ref, 1, 3));
+    assert(!quadtree_query(ref, 2, 0));
 
     return 0;
 }
