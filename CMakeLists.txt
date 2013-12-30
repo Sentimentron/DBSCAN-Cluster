@@ -23,6 +23,9 @@ add_executable (test_quadtree_insert_simple test_quadtree_insert_simple.c quadtr
 add_test (test_quadtree_insert_simple test_quadtree_insert_simple)
 
 add_executable (test_quadtree_subdivide_1 test_quadtree_subdivide_1.c quadtree.c)
-add_test (test_quadtree__subdivide_1 test_quadtree_subdivide_1)
+add_test (test_quadtree_subdivide_1 test_quadtree_subdivide_1)
+
+add_executable(test_quadtree_insert_2 test_quadtree_insert_2.c quadtree.c)
+add_test (test_quadtree_insert_2 test_quadtree_insert_2)
 
 #add_executable (Cluster quadtree.c)

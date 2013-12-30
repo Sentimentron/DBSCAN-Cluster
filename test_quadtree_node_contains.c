@@ -9,7 +9,7 @@ int _quadtree_node_contains(QUADTREE_NODE *n, unsigned int x, unsigned int y);
 int main(int argc, char **argv) {
     QUADTREE *ref = NULL; 
 
-    assert(!quadtree_init(&ref, 4, 4));
+    assert(!quadtree_init(&ref, 3, 3));
 
     assert(_quadtree_node_contains(ref->root, 0, 0));
     assert(_quadtree_node_contains(ref->root, 0, 1));
