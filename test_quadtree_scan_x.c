@@ -103,5 +103,23 @@ int main(int argc, char **argv) {
     assert(!quadtree_scan_x(ref, 13, scan, &p, 64));
     assert(comp(random, scan, 64, 64));
 
+    for (i = 0; i < 64; i++) {
+        // Insert the random numbers at a constant x value
+        assert(quadtree_insert(ref, 0, random[i]));
+    }
+
+    p = 0;
+    assert(!quadtree_scan_x(ref, 0, scan, &p, 64));
+    assert(comp(random, scan, 64, 64));
+
+    for (i = 0; i < 64; i++) {
+        // Insert the random numbers at a constant x value
+        assert(quadtree_insert(ref, s-1, random[i]));
+    }
+
+    p = 0;
+    assert(!quadtree_scan_x(ref, s-1, scan, &p, 64));
+    assert(comp(random, scan, 64, 64));
+
     return 0;
 }
