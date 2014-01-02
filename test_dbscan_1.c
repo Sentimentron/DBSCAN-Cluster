@@ -12,11 +12,11 @@
 
 #define popcount(of)  __builtin_popcount(of)
 
+
 int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             float eps, unsigned int minpoints,
             unsigned int * (*neighbours_search)(char *out, 
-            void *, unsigned int, float, unsigned int *)
-    );
+            void *, unsigned int, float, unsigned int *));
 
 int compute_ui_bitvec (
     unsigned int *arr,              // Arrays to compare
@@ -129,7 +129,7 @@ unsigned int max (unsigned int *arr, unsigned int len) {
     return ret;
 }
 
-int neighbours_search (
+unsigned int neighbours_search (
     char *out, void *dptr, 
     unsigned int current_point,
     float eps, unsigned int *count
@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
     unsigned int clusters[4];
     unsigned int expected_clusters1[] = {1, 1, 0, 0};
 
-    assert(!quadtree_init(&ref, 8, 8));
+    assert(!quadtree_init(&ref, 7, 7));
     // x is the document, y is the label
     assert(quadtree_insert(ref, 0, 4));
     assert(quadtree_insert(ref, 1, 4));
@@ -261,7 +261,8 @@ int main(int argc, char **argv) {
     assert(neighbours == 0x8);
 
     for (int i = 0; i < 4; i++) clusters[i] = i;
-    assert(!DBSCAN(ref, clusters, 4, 0.005f, 2, neighbours_search));
+    assert(!DBSCAN(ref, clusters, 4, 0.005f, 2, &neighbours_search));
+    assert(!memcmp(clusters, expected_clusters1, sizeof(unsigned int) * 4));
 
     return 0;
 }

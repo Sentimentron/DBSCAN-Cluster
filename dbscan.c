@@ -46,7 +46,7 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             return 1; 
         }
         
-        if (count <= minpoints) {
+        if (count < minpoints) {
             *(d + i) = 0; // Noise
             continue;
         }
