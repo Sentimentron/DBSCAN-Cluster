@@ -15,8 +15,9 @@
 
 int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             float eps, unsigned int minpoints,
-            unsigned int * (*neighbours_search)(char *out, 
-            void *, unsigned int, float, unsigned int *));
+            unsigned int (*neighbours_search)(char *out, 
+            void *, unsigned int, float, unsigned int *)
+    );
 
 int compute_ui_bitvec (
     unsigned int *arr,              // Arrays to compare
@@ -190,6 +191,9 @@ int main(int argc, char **argv) {
 
     unsigned int clusters[4];
     unsigned int expected_clusters1[] = {1, 1, 0, 0};
+    unsigned int expected_clusters2[] = {1, 1, 1, 0};
+    unsigned int expected_clusters3[] = {0, 0, 0, 0};
+    unsigned int expected_clusters4[] = {1, 1, 1, 0};
 
     assert(!quadtree_init(&ref, 7, 7));
     // x is the document, y is the label
@@ -263,6 +267,19 @@ int main(int argc, char **argv) {
     for (int i = 0; i < 4; i++) clusters[i] = i;
     assert(!DBSCAN(ref, clusters, 4, 0.005f, 2, &neighbours_search));
     assert(!memcmp(clusters, expected_clusters1, sizeof(unsigned int) * 4));
+
+    for (int i = 0; i < 4; i++) clusters[i] = i;
+    assert(!DBSCAN(ref, clusters, 4, 0.5, 2, &neighbours_search));
+    assert(!memcmp(clusters, expected_clusters2, sizeof(unsigned int) * 4));
+
+    for (int i = 0; i < 4; i++) clusters[i] = i;
+    assert(!DBSCAN(ref, clusters, 4, 0.005f, 3, &neighbours_search));
+    assert(!memcmp(clusters, expected_clusters3, sizeof(unsigned int) * 4));
+
+    for (int i = 0; i < 4; i++) clusters[i] = i;
+    assert(!DBSCAN(ref, clusters, 4, 0.5f, 3, &neighbours_search));
+    assert(!memcmp(clusters, expected_clusters4, sizeof(unsigned int) * 4));
+
 
     return 0;
 }

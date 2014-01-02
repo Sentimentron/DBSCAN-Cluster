@@ -17,7 +17,7 @@
 
 int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             float eps, unsigned int minpoints,
-            unsigned int * (*neighbours_search)(char *out, 
+            unsigned int (*neighbours_search)(char *out, 
             void *, unsigned int, float, unsigned int *)
     ) {
 
@@ -70,7 +70,7 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
                     }
                 }
             }
-            if (!BITVEC_SET(j, clustered)) {
+            if (!(BITVEC_SET(j, clustered))) {
                 *(d + j) = cluster;
                 BITVEC_INS(j, clustered);
             }
