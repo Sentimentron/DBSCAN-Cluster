@@ -22,11 +22,6 @@ int compute_ui_bitvec (
     // Translate buf1 and buf2 into bitvectors
     unsigned int i;
 
-    // Working buffer memory check 
-    if (bufsize < len) {
-        return 1; // Need more memory
-    } 
-
     // Clear buffer
     memset(buf, 0, (bufsize+7)/8);
 
@@ -123,7 +118,7 @@ int neighbours_determine_initial_set(char *out, void *dptr,
 unsigned int max (unsigned int *arr, unsigned int len) {
     unsigned int i, ret;
     for (i = 0, ret = 0; i < len; i++) {
-        if (*(arr + i) < ret) ret = *(arr + i);
+        if (*(arr + i) > ret) ret = *(arr + i);
     }
     return ret;
 }
@@ -146,7 +141,7 @@ int neighbours_search (
     assert(!quadtree_scan_x(data, current_point, labels, &size, 5));
 
     // Convert source labels
-    assert(!compute_ui_bitvec(labels, max(labels, size), &buf1, 8));
+    assert(!compute_ui_bitvec(labels, size, &buf1, 8));
 
     // For each point set in that set
     for (int i = 0; i < 8; i++) {
@@ -158,7 +153,7 @@ int neighbours_search (
         assert(!quadtree_scan_x(data, i, labels2, &labels_size2, 5));
 
         // Compute bitvectors
-        assert(!compute_ui_bitvec(labels2, max(labels2, labels_size2), &buf2, 8));
+        assert(!compute_ui_bitvec(labels2, labels_size2, &buf2, 8));
 
         // Compute intersection
         inter = compute_intersection(&buf1, &buf2, 8, 8);
@@ -173,6 +168,7 @@ int neighbours_search (
         if (distance > eps) {
             // Clear output bit
             BITVEC_CLEAR(i, out);
+            *count = *count - 1;
         }
     }
 
@@ -211,6 +207,47 @@ int main(int argc, char **argv) {
 
     c = 0; neighbours = 0;
     assert(!neighbours_determine_initial_set(&neighbours, ref, 3, &c));
+    assert(c == 1);
+    assert(neighbours == 0x8);
+
+    // Test the neighbour generation algorithm
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 0, 0.005f, &c));
+    assert(c == 2);
+    assert(neighbours == 0x3);
+
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 1, 0.005f, &c));
+    assert(c == 2);
+    assert(neighbours == 0x3);
+
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 2, 0.005f, &c));
+    assert(c == 1);
+    assert(neighbours == 0x4);
+
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 3, 0.005f, &c));
+    assert(c == 1);
+    assert(neighbours == 0x8);
+
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 0, 0.5f, &c));
+    assert(c == 3);
+    assert(neighbours == 0x7);
+
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 1, 0.5f, &c));
+    assert(c == 3);
+    assert(neighbours == 0x7);
+
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 2, 0.5f, &c));
+    assert(c == 3);
+    assert(neighbours == 0x7);
+
+    c = 0; neighbours = 0;
+    assert(!neighbours_search(&neighbours, ref, 3, 0.5f, &c));
     assert(c == 1);
     assert(neighbours == 0x8);
 
