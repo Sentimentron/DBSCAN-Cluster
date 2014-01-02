@@ -40,4 +40,7 @@ add_test (test_quadtree_scan_x test_quadtree_scan_x)
 add_executable(test_quadtree_scan_y test_quadtree_scan_y.c quadtree.c)
 add_test (test_quadtree_scan_y test_quadtree_scan_y)
 
+add_executable(test_dbscan_1 test_dbscan_1.c quadtree.c)
+add_test (test_dbscan_1 test_dbscan_1)
+
 #add_executable (Cluster quadtree.c)
