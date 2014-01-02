@@ -286,7 +286,7 @@ int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsign
 
     // Check the boundaries
     if (y < n->region.nw.y) return 0;
-    if (y > n->region.se.x) return 0;
+    if (y > n->region.se.y) return 0;
 
     if (!_quadtree_node_isleaf(n)) {
         // Recurse to children nodes 
