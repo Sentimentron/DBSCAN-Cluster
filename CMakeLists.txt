@@ -46,4 +46,7 @@ add_test (test_dbscan_1 test_dbscan_1)
 add_executable(test_dbscan_2 test_dbscan_2.c neighbours_naive.c quadtree.c dbscan.c)
 add_test (test_dbscan_2 test_dbscan_2)
 
+add_executable(test_dbscan_2a test_dbscan_2.c neighbours.c quadtree.c dbscan.c )
+add_test (test_dbscan_2a test_dbscan_2a)
+
 #add_executable (Cluster quadtree.c)

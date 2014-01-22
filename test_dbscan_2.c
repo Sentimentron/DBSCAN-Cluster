@@ -15,20 +15,20 @@
 
 int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             float eps, unsigned int minpoints,
-            unsigned int (*neighbours_search)(char *out, 
+            unsigned int (*neighbours_search)(char *out,
             void *, unsigned int, float, unsigned int *)
     );
 
 
 unsigned int neighbours_search (
-    char *out, void *dptr, 
+    char *out, void *dptr,
     unsigned int current_point,
     float eps, unsigned int *count
-    ); 
+    );
 
 int main(int argc, char **argv) {
 
-    QUADTREE *ref = NULL; 
+    QUADTREE *ref = NULL;
 
     unsigned int clusters[6];
     unsigned int expected_clusters1[] = {0,0,0,0,0,0};
