@@ -20,7 +20,7 @@ static
 
 void _lab_realloc(unsigned int size) {
     if (size < _NN_GLOB_LABEL_BUF_SIZE) return;
-    _NN_GLOB_LABEL_BUF = realloc(_NN_GLOB_LABEL_BUF, size);
+    _NN_GLOB_LABEL_BUF = realloc(_NN_GLOB_LABEL_BUF, size * sizeof(unsigned int));
     if (_NN_GLOB_LABEL_BUF == NULL) {
         fprintf(stderr, "%s:%d: Allocation error", __FILE__, __LINE__);
         exit(2);
@@ -30,7 +30,7 @@ void _lab_realloc(unsigned int size) {
 
 void _id_realloc(unsigned int size) {
     if (size < _NN_GLOB_ID_BUF_SIZE) return;
-    _NN_GLOB_ID_BUF = realloc(_NN_GLOB_ID_BUF, size);
+    _NN_GLOB_ID_BUF = realloc(_NN_GLOB_ID_BUF, size *  sizeof(unsigned int));
     if (_NN_GLOB_ID_BUF == NULL) {
         fprintf(stderr, "%s:%d: Allocation error", __FILE__, __LINE__);
         exit(2);

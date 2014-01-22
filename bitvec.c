@@ -157,6 +157,7 @@ void bitvec_free(bitvec_t *ref) {
 double bitvec_distance(bitvec_t *a, bitvec_t *b) {
 
     uint64_t i, u, m, j;
+    bitvec_lock(a); bitvec_lock(b);
 
     i = 0;
     u = 0;
@@ -175,6 +176,20 @@ double bitvec_distance(bitvec_t *a, bitvec_t *b) {
         i += __builtin_popcountl(i1);
         u += __builtin_popcountl(u1);
     }
+    bitvec_unlock(a); bitvec_unlock(b);
 
     return 1.0 - (double)i/u;
+}
+
+uint64_t bitvec_popcount(bitvec_t *b) {
+    uint64_t ret, m, i;
+    bitvec_lock(b); 
+
+    m = BOFF_TO_CELL_CEIL(b->max_offset);
+    for (i = 0, ret = 0; i < m; i++) {
+        ret += __builtin_popcountl(b->storage[i]);
+    }
+
+    bitvec_unlock(b);
+    return ret;
 }

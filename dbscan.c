@@ -28,6 +28,10 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
     for (i = 0; i < dlen; i++) {
         count = 0;
 
+        if (i) {
+            fprintf(stderr, "%.2f\n", 100.0*bitvec_popcount(visited)/dlen);
+        }
+
         // Already visited this point
         if (bitvec_check(visited, i)) continue;
 

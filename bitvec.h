@@ -19,5 +19,6 @@ void bitvec_clear_all(bitvec_t *);
 void bitvec_union(bitvec_t*, bitvec_t*);
 void bitvec_free(bitvec_t*);
 double bitvec_distance(bitvec_t*, bitvec_t*);
+uint64_t bitvec_popcount(bitvec_t *b);
 
 #endif
