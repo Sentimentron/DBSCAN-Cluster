@@ -26,6 +26,8 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
 
     // d is a list of identifiers
     for (i = 0; i < dlen; i++) {
+        count = 0;
+
         // Already visited this point
         if (bitvec_check(visited, i)) continue;
 
@@ -38,7 +40,6 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
         if(neighbours_search(neighbours, data, i, eps, &count)) {
             return 1;
         }
-
         if (count < minpoints) {
             *(d + i) = 0; // Noise
             continue;
@@ -52,6 +53,8 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             if(!bitvec_check(neighbours, j)) continue;
             if(!bitvec_check(visited, j)) {
                 bitvec_set(visited, j);
+                count = 0;
+                bitvec_clear_all(neighbours2);
                 if (neighbours_search(neighbours2, data, j, eps, &count)) {
                     return 1;
                 }

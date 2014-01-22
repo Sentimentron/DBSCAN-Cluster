@@ -6,25 +6,7 @@
 
 #include "quadtree.h"
 #include "bitvec.h"
-
-#define BITVEC_INS(off, bitvec) bitvec[off / 8] |= (1 << (off % 8))
-#define BITVEC_SET(off, bitvec) bitvec[off / 8] & (1 << (off % 8))
-#define BITVEC_CLEAR(off, bitvec) bitvec[off / 8] &= ~(1 << (off % 8))
-
-#define popcount(of)  __builtin_popcount(of)
-
-
-int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
-            float eps, unsigned int minpoints,
-            unsigned int (*neighbours_search)(bitvec_t *out, 
-            void *, unsigned int, float, unsigned int *)
-    );
-
-unsigned int neighbours_search (
-    bitvec_t *out, void *dptr, 
-    unsigned int current_point,
-    float eps, unsigned int *count
-    );
+#include "dbscan.h"
 
 int main(int argc, char **argv) {
 

@@ -40,7 +40,7 @@ int bitvec_realloc_storage(bitvec_t *b, uint64_t to) {
         exit(2);
     }
     // Clear the newly allocated memory
-    for (i = old_size+1; i < new_size; i++) {
+    for (i = old_size; i < new_size; i++) {
         b->storage[i] = 0;
     }
     b->max_offset = to;
@@ -100,8 +100,8 @@ inline void bitvec_set(bitvec_t *b, uint64_t off) {
 
     cell = BOFF_TO_CELL(off);
     bit = BOFF_TO_BIT(off);
-
     b->storage[cell] |= ((uint64_t)1 << bit);
+
     bitvec_unlock(b);
 }
 
