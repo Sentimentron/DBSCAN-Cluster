@@ -13,6 +13,24 @@ SET (CMAKE_LD_FLAGS "-g")
 
 add_definitions(-Wall -W -g -O0)
 
+add_executable (test_bitvec_alloc test_bitvec_alloc.c bitvec.c)
+add_test(test_bitvec_alloc test_bitvec_alloc)
+
+add_executable (test_bitvec_set test_bitvec_set.c bitvec.c)
+add_test(test_bitvec_set test_bitvec_set)
+
+add_executable (test_bitvec_set_extend test_bitvec_set_extend.c bitvec.c)
+add_test(test_bitvec_set_extend test_bitvec_set_extend)
+
+add_executable (test_bitvec_set_extend_clear test_bitvec_set_extend_clear.c bitvec.c)
+add_test(test_bitvec_set_extend_clear test_bitvec_set_extend_clear)
+
+add_executable (test_bitvec_clear test_bitvec_clear.c bitvec.c)
+add_test(test_bitvec_clear test_bitvec_clear)
+
+add_executable (test_bitvec_check test_bitvec_check.c bitvec.c)
+add_test(test_bitvec_check test_bitvec_check)
+
 add_executable (test_quadtree_init quadtree.c test_quadtree_init.c)
 add_test(test_quadtree_init test_quadtree_init)
 
