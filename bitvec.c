@@ -82,9 +82,12 @@ inline int bitvec_check(bitvec_t *b, uint64_t off) {
     cell = BOFF_TO_CELL(off);
     bit = BOFF_TO_BIT(off);
 
-    ret = b->storage[cell] &= ((uint64_t)1 << bit);
+    ret = b->storage[cell] & ((uint64_t)1 << bit);
     bitvec_unlock(b);
-    return ret;
+    if (ret) {
+        return 1;
+    }
+    return 0;
 }
 
 inline void bitvec_set(bitvec_t *b, uint64_t off) {
@@ -116,4 +119,62 @@ inline void bitvec_clear(bitvec_t *b, uint64_t off) {
 
     b->storage[cell] &= ~((uint64_t)1 << bit);
     bitvec_unlock(b);
+}
+
+void bitvec_batch_set_u32(bitvec_t *b, uint32_t *labels, uint32_t count) {
+    for (uint64_t i = 0; i < count; i++) {
+        uint32_t label = *(labels + i);
+        bitvec_set(b, label);
+    }
+}
+
+void bitvec_clear_all(bitvec_t *b) {
+    uint64_t max_cell = BOFF_TO_CELL_CEIL(b->max_offset);
+    memset(b->storage, 0, max_cell * sizeof(uint64_t));
+    b->max_offset = max_cell * sizeof(uint64_t) * 8;
+}
+
+void bitvec_union(bitvec_t *a, bitvec_t *b) {
+    uint64_t i, m;
+
+    // Find the minimum offset
+    m = a->max_offset;
+    if (b->max_offset < m) m = b->max_offset;
+
+    m = BOFF_TO_CELL_CEIL(m); 
+    for (i = 0; i < m; i++) {
+        a->storage[i] = a->storage[i] | b->storage[i];
+    }
+}
+
+void bitvec_free(bitvec_t *ref) {
+    free(ref->storage);
+    pthread_mutex_destroy(&(ref->lock));
+    ref->storage = NULL;
+    ref->max_offset = 0;
+}
+
+double bitvec_distance(bitvec_t *a, bitvec_t *b) {
+
+    uint64_t i, u, m, j;
+
+    i = 0;
+    u = 0;
+
+    // Find the minimum offset
+    m = a->max_offset;
+    if (b->max_offset < m) m = b->max_offset;
+
+    m = BOFF_TO_CELL_CEIL(m); 
+    for (j = 0; j < m; j++) {
+        uint64_t b1, b2, i1, u1;
+        b1 = a->storage[j];
+        b2 = b->storage[j];
+        i1 = b1 & b2;
+        u1 = b1 | b2;
+        i += __builtin_popcountl(i1);
+        u += __builtin_popcountl(u1);
+    }
+
+    return 1.0 - (double)i/u;
 }

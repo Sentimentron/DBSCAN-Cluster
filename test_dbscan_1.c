@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "quadtree.h"
+#include "bitvec.h"
 
 #define BITVEC_INS(off, bitvec) bitvec[off / 8] |= (1 << (off % 8))
 #define BITVEC_SET(off, bitvec) bitvec[off / 8] & (1 << (off % 8))
@@ -15,21 +16,23 @@
 
 int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             float eps, unsigned int minpoints,
-            unsigned int (*neighbours_search)(char *out, 
+            unsigned int (*neighbours_search)(bitvec_t *out, 
             void *, unsigned int, float, unsigned int *)
     );
 
 unsigned int neighbours_search (
-    char *out, void *dptr, 
+    bitvec_t *out, void *dptr, 
     unsigned int current_point,
     float eps, unsigned int *count
     );
 
 int main(int argc, char **argv) {
 
-    char neighbours;
+    bitvec_t *neighbours;
     unsigned int c;
     QUADTREE *ref = NULL; 
+
+    bitvec_alloc(&neighbours, 8);
 
     unsigned int clusters[4];
     unsigned int expected_clusters1[] = {1, 1, 0, 0};
@@ -46,65 +49,80 @@ int main(int argc, char **argv) {
     assert(quadtree_insert(ref, 3, 1));
 
     // Test the initial set algorithm
-    assert(!neighbours_determine_initial_set(&neighbours, ref, 0, &c));
+    assert(!neighbours_determine_initial_set(neighbours, ref, 0, &c));
     assert(c == 3);
-    assert(neighbours == 0x7);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
+    assert(bitvec_check(neighbours, 2));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_determine_initial_set(&neighbours, ref, 1, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_determine_initial_set(neighbours, ref, 1, &c));
     assert(c == 3);
-    assert(neighbours == 0x7);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
+    assert(bitvec_check(neighbours, 2));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_determine_initial_set(&neighbours, ref, 2, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_determine_initial_set(neighbours, ref, 2, &c));
     assert(c == 3);
-    assert(neighbours == 0x7);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
+    assert(bitvec_check(neighbours, 2));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_determine_initial_set(&neighbours, ref, 3, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_determine_initial_set(neighbours, ref, 3, &c));
     assert(c == 1);
-    assert(neighbours == 0x8);
+    assert(bitvec_check(neighbours, 3));
 
     // Test the neighbour generation algorithm
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 0, 0.005f, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 0, 0.005f, &c));
     assert(c == 2);
-    assert(neighbours == 0x3);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 1, 0.005f, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 1, 0.005f, &c));
     assert(c == 2);
-    assert(neighbours == 0x3);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 2, 0.005f, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 2, 0.005f, &c));
     assert(c == 1);
-    assert(neighbours == 0x4);
+    assert(bitvec_check(neighbours, 2));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 3, 0.005f, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 3, 0.005f, &c));
     assert(c == 1);
-    assert(neighbours == 0x8);
+    assert(bitvec_check(neighbours, 3));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 0, 0.5f, &c));
+
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 0, 0.5f, &c));
     assert(c == 3);
-    assert(neighbours == 0x7);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
+    assert(bitvec_check(neighbours, 2));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 1, 0.5f, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 1, 0.5f, &c));
     assert(c == 3);
-    assert(neighbours == 0x7);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
+    assert(bitvec_check(neighbours, 2));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 2, 0.5f, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 2, 0.5f, &c));
     assert(c == 3);
-    assert(neighbours == 0x7);
+    assert(bitvec_check(neighbours, 0));
+    assert(bitvec_check(neighbours, 1));
+    assert(bitvec_check(neighbours, 2));
 
-    c = 0; neighbours = 0;
-    assert(!neighbours_search(&neighbours, ref, 3, 0.5f, &c));
+    c = 0; bitvec_clear_all(neighbours);
+    assert(!neighbours_search(neighbours, ref, 3, 0.5f, &c));
     assert(c == 1);
-    assert(neighbours == 0x8);
+    assert(bitvec_check(neighbours, 3));
 
     for (int i = 0; i < 4; i++) clusters[i] = i;
     assert(!DBSCAN(ref, clusters, 4, 0.005f, 2, &neighbours_search));

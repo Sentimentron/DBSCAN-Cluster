@@ -1,14 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define BITVEC_ALLOC(bitvec, size) bitvec = calloc(1, (size+7)/8); \
-    if(bitvec == NULL) {\
-        fprintf(stderr, "%s:%d: Allocation error!\n", __FILE__, __LINE__); \
-        exit(2); \
-    }
-#define BITVEC_INS(off, bitvec) bitvec[off / 8] |= (1 << (off % 8))
-#define BITVEC_SET(off, bitvec) bitvec[off / 8] & (1 << (off % 8))
+#include "bitvec.h"
 
 // Data is expected to be in the form of identifiers which
 // monotonically increase from 0 to whatever
@@ -17,32 +10,32 @@
 
 int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             float eps, unsigned int minpoints,
-            unsigned int (*neighbours_search)(char *out,
-            void *, unsigned int, float, unsigned int, unsigned int *)
+            unsigned int (*neighbours_search)(bitvec_t *out,
+            void *, unsigned int, float, unsigned int *)
     ) {
 
     unsigned int cluster = 1;
-    char *visited, *clustered; // Bit-vector which says if we've visited an offset in D
-    char *neighbours, *neighbours2;
     unsigned int count, i, j, k;
 
+    bitvec_t *visited, *clustered, *neighbours, *neighbours2;
 
-    BITVEC_ALLOC(visited, dlen);
-    BITVEC_ALLOC(clustered, dlen);
-    BITVEC_ALLOC(neighbours, dlen);
-    BITVEC_ALLOC(neighbours2, dlen);
+    bitvec_alloc(&visited, dlen);
+    bitvec_alloc(&clustered, dlen);
+    bitvec_alloc(&neighbours, dlen);
+    bitvec_alloc(&neighbours2, dlen);
 
     // d is a list of identifiers
     for (i = 0; i < dlen; i++) {
         // Already visited this point
-        if (BITVEC_SET(i, visited)) continue;
+        if (bitvec_check(visited, i)) continue;
 
         // Mark this point as visited
-        BITVEC_INS(i, visited);
+        bitvec_set(visited, i);
 
-        memset(neighbours, 0, (dlen+7)/8);
+        bitvec_clear_all(neighbours);
+
         // Get the first set of neighbours
-        if(neighbours_search(neighbours, data, i, eps, dlen, &count)) {
+        if(neighbours_search(neighbours, data, i, eps, &count)) {
             return 1;
         }
 
@@ -52,37 +45,34 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
         }
 
         *(d + i) = cluster;
-        BITVEC_INS(i, clustered);
+        bitvec_set(clustered, i);
 
         // Expand the cluster
         for (j = 0; j < dlen; j++) {
-            if(!(BITVEC_SET(j, neighbours))) continue;
-            if(!(BITVEC_SET(j, visited))) {
-                BITVEC_INS(j, visited);
-                memset(neighbours2, 0, (dlen+7)/8);
-                if (neighbours_search(neighbours2, data, j, eps, dlen, &count)) {
+            if(!bitvec_check(neighbours, j)) continue;
+            if(!bitvec_check(visited, j)) {
+                bitvec_set(visited, j);
+                if (neighbours_search(neighbours2, data, j, eps, &count)) {
                     return 1;
                 }
                 if (count >= minpoints) {
                     // Merge two bitarrays
-                    for (k = 0; k < (dlen + 7)/8; k++) {
-                        neighbours[k] |= neighbours2[k];
-                    }
+                    bitvec_union(neighbours, neighbours2);
                 }
             }
-            if (!(BITVEC_SET(j, clustered))) {
+            if (!bitvec_check(clustered, j)) {
                 *(d + j) = cluster;
-                BITVEC_INS(j, clustered);
+                bitvec_set(clustered, j);
             }
         }
 
         cluster++;
     }
 
-    free(visited);
-    free(clustered);
-    free(neighbours);
-    free(neighbours2);
+    bitvec_free(visited);
+    bitvec_free(clustered);
+    bitvec_free(neighbours);
+    bitvec_free(neighbours2);
 
     return 0;
 
