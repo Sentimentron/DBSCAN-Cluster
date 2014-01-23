@@ -40,7 +40,7 @@ int bitvec_realloc_storage(bitvec_t *b, uint64_t to) {
         exit(2);
     }
     // Clear the newly allocated memory
-    for (i = old_size; i < new_size; i++) {
+    for (i = old_size; i <= new_size; i++) {
         b->storage[i] = 0;
     }
     b->max_offset = to;
@@ -106,7 +106,7 @@ inline void bitvec_set(bitvec_t *b, uint64_t off) {
 }
 
 inline void bitvec_clear(bitvec_t *b, uint64_t off) {
- 
+
     uint64_t cell, bit;
     bitvec_lock(b);
 
@@ -141,7 +141,7 @@ void bitvec_union(bitvec_t *a, bitvec_t *b) {
     m = a->max_offset;
     if (b->max_offset < m) m = b->max_offset;
 
-    m = BOFF_TO_CELL_CEIL(m); 
+    m = BOFF_TO_CELL_CEIL(m);
     for (i = 0; i < m; i++) {
         a->storage[i] = a->storage[i] | b->storage[i];
     }
@@ -166,7 +166,7 @@ double bitvec_distance(bitvec_t *a, bitvec_t *b) {
     m = a->max_offset;
     if (b->max_offset < m) m = b->max_offset;
 
-    m = BOFF_TO_CELL_CEIL(m); 
+    m = BOFF_TO_CELL_CEIL(m);
     for (j = 0; j < m; j++) {
         uint64_t b1, b2, i1, u1;
         b1 = a->storage[j];
@@ -183,7 +183,7 @@ double bitvec_distance(bitvec_t *a, bitvec_t *b) {
 
 uint64_t bitvec_popcount(bitvec_t *b) {
     uint64_t ret, m, i;
-    bitvec_lock(b); 
+    bitvec_lock(b);
 
     m = BOFF_TO_CELL_CEIL(b->max_offset);
     for (i = 0, ret = 0; i < m; i++) {
