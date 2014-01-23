@@ -41,7 +41,7 @@ int bitvec_realloc_storage(bitvec_t *b, uint64_t to) {
         exit(2);
     }
     // Clear the newly allocated memory
-    for (i = old_size; i <= new_size; i++) {
+    for (i = old_size; i < new_size; i++) {
         b->storage[i] = 0;
     }
     b->max_offset = to;
@@ -132,7 +132,7 @@ void bitvec_batch_set_u32(bitvec_t *b, uint32_t *labels, uint32_t count) {
 }
 
 void bitvec_clear_all(bitvec_t *b) {
-    uint64_t max_cell = BOFF_TO_CELL(b->max_offset);
+    uint64_t max_cell = b->size;
     memset(b->storage, 0, max_cell * sizeof(uint64_t));
     b->max_offset = max_cell * sizeof(uint64_t) * 8;
 }
@@ -170,7 +170,7 @@ double bitvec_distance(bitvec_t *a, bitvec_t *b) {
     if (b->max_offset < m) m = b->max_offset;
 
     m = BOFF_TO_CELL(m);
-    for (j = 0; j < m; j++) {
+    for (j = 0; j <= m; j++) {
         uint64_t b1, b2, i1, u1;
         b1 = a->storage[j];
         b2 = b->storage[j];
