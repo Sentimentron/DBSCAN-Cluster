@@ -33,6 +33,7 @@ int bitvec_realloc_storage(bitvec_t *b, uint64_t to) {
     // Figure out size in uint64_ts
     old_size = BOFF_TO_CELL_CEIL(b->max_offset);
     new_size = BOFF_TO_CELL_CEIL(to);
+    if (old_size == new_size) return 1;
     // Reallocate the array
     b->storage = realloc(b->storage, sizeof(uint64_t)*new_size);
     if (b->storage == NULL) {
@@ -40,6 +41,7 @@ int bitvec_realloc_storage(bitvec_t *b, uint64_t to) {
         exit(2);
     }
     // Clear the newly allocated memory
+    //if (old_size == 0) b->storage[0] = 0;
     for (i = old_size; i <= new_size; i++) {
         b->storage[i] = 0;
     }

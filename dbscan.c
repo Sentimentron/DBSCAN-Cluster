@@ -29,7 +29,7 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
         count = 0;
 
         if (i) {
-            fprintf(stderr, "%.2f\n", 100.0*bitvec_popcount(visited)/dlen);
+            fprintf(stderr, "%.2f\r", 100.0*bitvec_popcount(visited)/dlen);
         }
 
         // Already visited this point
