@@ -72,5 +72,5 @@ add_test (test_dbscan_2 test_dbscan_2)
 add_executable(test_dbscan_2a test_dbscan_2.c neighbours.c quadtree.c dbscan.c bitvec.c)
 add_test (test_dbscan_2a test_dbscan_2a)
 
-#add_executable (Cluster quadtree.c)
-
+add_executable (cluster quadtree.c dbscan.c bitvec.c cluster.c neighbours.c)
+target_link_libraries(cluster sqlite3)
