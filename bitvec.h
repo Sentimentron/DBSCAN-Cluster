@@ -8,6 +8,7 @@ typedef struct {
     pthread_mutex_t lock;
     uint64_t        max_offset;
     uint64_t        *storage;
+    size_t          size;
 } bitvec_t; 
 
 int bitvec_check(bitvec_t*, uint64_t);

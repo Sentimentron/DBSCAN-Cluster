@@ -9,7 +9,7 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 SET (CMAKE_C_FLAGS "-pedantic -std=c99 -O0 -ggdb")
-SET (CMAKE_LD_FLAGS "-g")
+SET (CMAKE_LD_FLAGS "-static -g")
 
 add_definitions(-Wall -W -g -O0)
 
