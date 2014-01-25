@@ -34,6 +34,11 @@ int _qn_alloc(QUADTREE_NODE **ref) {
     // Allocate a QUADTREE_NODE and return 0
     NULLCHECK(ref);
     SAFE_MALLOC(sizeof(QUADTREE_NODE), 1, ref);
+    (*ref)->points = calloc(sizeof(QUADTREE_POINT), 4);
+    if ((*ref)->points == NULL) {
+        fprintf(stderr, "Allocation error!\n");
+        exit(1);
+    }
     return 0;
 }
 
@@ -149,7 +154,8 @@ int _quadtree_node_subdivide(QUADTREE_NODE *n) {
         points[i] = n->points[i];
     }
 
-    memset(n->points, 0xFFFFFFFF, sizeof(QUADTREE_POINT) * 4);
+    free(n->points);
+    n->points = NULL;
 
     for (i = 0; i < 4; i++) {
         if(!_quadtree_insert(n, points[i].x, points[i].y, 0)) {
@@ -175,14 +181,8 @@ int _quadtree_insert_into_internal(QUADTREE_NODE *n, unsigned int x, unsigned in
     return 0;
 }
 
-int _quadtree_node_isleaf(QUADTREE_NODE *n) {
-    int ret = 1;
-    ret &= (n->nw == NULL);
-    ret &= (n->ne == NULL);
-    ret &= (n->sw == NULL);
-    ret &= (n->se == NULL);
-    /*fprintf(stderr, "isleaf: %p %d\n", n, ret);*/
-    return ret;
+inline int _quadtree_node_isleaf(QUADTREE_NODE *n) {
+    return n->points != NULL;
 }
 
 int _quadtree_insert(QUADTREE_NODE *n, unsigned int x, unsigned int y, int subdivide) {
@@ -280,10 +280,29 @@ int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsign
 
 }
 
+void _quadtree_sort_swap(unsigned int *a, unsigned int *b) {
+    unsigned int c;
+    c = *a;
+    *a = *b;
+    *b = c;
+}
+
+void _quadtree_sort_result_array(unsigned int *start, unsigned int *finish) {
+    unsigned int *tmp = start;
+    while (finish > start) {
+        for (tmp = start; tmp < finish; tmp++) {
+            if (*tmp > *(tmp + 1)) {
+                _quadtree_sort_swap(tmp, tmp + 1);
+            }
+        }
+        finish--;
+    }
+}
+
 int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsigned int *p, size_t arr_size) {
 
     QUADTREE_POINT *point;
-    int i;
+    int i, j;
 
     // Check the boundaries
     if (y < n->region.nw.y) return 0;
@@ -298,7 +317,7 @@ int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsign
         return 0;
     }
 
-    for (i = 0; i < 4; i++) {
+    for (i = 0, j = *p; i < 4; i++) {
         // Check each point in this leaf
         point = n->points + i;
         if (point->y != y) continue;
@@ -311,6 +330,8 @@ int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsign
             return 1; // Need a bigger array to complete the scan
         }
     }
+
+    _quadtree_sort_result_array(out + j, out + *p - 1);
 
     return 0;
 

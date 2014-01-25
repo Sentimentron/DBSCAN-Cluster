@@ -19,11 +19,11 @@ int main(int argc, char **argv) {
     assert(!quadtree_init(&ref, 7, 7));
     // x is the document, y is the label
     assert(quadtree_insert(ref, 0, 1));
-    assert(quadtree_insert(ref, 1, 1));
-    assert(quadtree_insert(ref, 1, 3));
-    assert(quadtree_insert(ref, 2, 0));
-    assert(quadtree_insert(ref, 2, 3));
-    assert(quadtree_insert(ref, 3, 0));
+    assert(quadtree_insert(ref, 1, 1)); // Expect the distance between 0 and 1 to be 0.5
+    assert(quadtree_insert(ref, 1, 3)); // Expect the distance between 1 and 2 to be 0.5
+    assert(quadtree_insert(ref, 2, 0)); // Expect the distance between 2 and 3 to be 0.5
+    assert(quadtree_insert(ref, 2, 3)); // Expect the distance between 3 and 4 to be 0
+    assert(quadtree_insert(ref, 3, 0)); // Expect the distnace between 4 and 5 to be 0.5
     assert(quadtree_insert(ref, 4, 2));
     assert(quadtree_insert(ref, 5, 2));
     assert(quadtree_insert(ref, 5, 4));

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
+#include <string.h>
 
 #include "quadtree.h"
 
@@ -23,8 +24,24 @@ int max(int *arr, int len) {
     return max;
 }
 
+int sort_issorted(unsigned int *arr, unsigned int items) {
+    unsigned cur = 0;
+    for (unsigned int i = 0; i < items; i++) {
+        if (arr[i] < cur) {
+            return 0;
+        }
+        cur = arr[i];
+    }
+    return 1;
+}
+
+int cmpfunc (const void * a, const void * b)
+{
+   return ( *(int*)a - *(int*)b );
+}
+
 int comp(int *arg1, unsigned int *arg2, int length1, int length2) {
-    // Compare the original random array with the one scanned
+    // Compare the original random0 array with the one scanned
     // Return 1 if they contain the same elements, 0 otherwise
     int i, j;
     for (i = 0; i < length1; i++) {
@@ -48,31 +65,35 @@ int comp(int *arg1, unsigned int *arg2, int length1, int length2) {
 
 int main(int argc, char **argv) {
 
-    int random[64], i, j;
-    unsigned int s, p, scan[64];
+    unsigned int random0[64], random1[63], random2[62], random3[61], i, j;
+    unsigned int s, p, scan0[64], scan1[64],scan2[64],scan3[64];
     QUADTREE *ref = NULL;
 
-    // Configure random numbers
+    // Configure random0 numbers
     srand(time(NULL));
 
-    // Generate 64 of your finest random numbers!
+    // Generate 64 of your finest random0 numbers!
     for (i = 0; i < 64; i++) {
         int dup = 1;
         do {
-            random[i] = rand();
+            random0[i] = rand();
             // Check this one isn't a duplicate
             for (j = 0, dup = 0; j < i; j++) {
-                if (random[j] == random[i]) {
+                if (random0[j] == random0[i]) {
                     dup = 1; continue;
                 }
             }
         }
         while(dup);
-
     }
 
-    // Get the maximum random number generated
-    s = max(random, 64);
+    // Copy the random numbers
+    memcpy(random1, random0, 63 * sizeof(int));
+    memcpy(random2, random0, 62 * sizeof(int));
+    memcpy(random3, random0, 61 * sizeof(int));
+
+    // Get the maximum random0 number generated
+    s = max(random0, 64);
 
     // Get the nearest 2 power
     s = nextpow2(s);
@@ -81,45 +102,28 @@ int main(int argc, char **argv) {
     assert(!quadtree_init(&ref, s, s));
 
     for (i = 0; i < 64; i++) {
-        // Insert the random numbers at a constant x value
-        assert(quadtree_insert(ref, random[i], 13));
+        // Insert the random0 numbers at a constant x value
+        assert(quadtree_insert(ref, random0[i], 13));
     }
 
-    // Expect a scan along an x-offset with no values
-    // will result in a non-incremented pointer
-    p = 0;
-    assert(!quadtree_scan_y(ref, 15, scan, &p, 64));
-    assert(p == 0);
-
-    // Expect a scan along the correct offset without
-    // sufficient memory to return error code 1, and
-    // a partially-filled search array
-    p = 0;
-    assert(quadtree_scan_y(ref, 13, scan, &p, 32) == 1);
-    assert(comp(random, scan, 64, 32));
-
-    // Check for a successful scan
-    p = 0;
-    assert(!quadtree_scan_y(ref, 13, scan, &p, 64));
-    assert(comp(random, scan, 64, 64));
-
-    for (i = 0; i < 64; i++) {
-        // Insert the random numbers at a constant x value
-        assert(quadtree_insert(ref, random[i], 0));
-    }
+    qsort(random0, 64, sizeof(int), cmpfunc);
+    assert(sort_issorted(random0, 64));
 
     p = 0;
-    assert(!quadtree_scan_y(ref, 0, scan, &p, 64));
-    assert(comp(random, scan, 64, 64));
-
-    for (i = 0; i < 64; i++) {
-        // Insert the random numbers at a constant x value
-        assert(quadtree_insert(ref, random[i], s - 1));
-    }
+    assert(!quadtree_scan_y(ref, 13, scan0, &p, 64));
+    assert(sort_issorted(scan0, 64));
 
     p = 0;
-    assert(!quadtree_scan_y(ref, s-1, scan, &p, 64));
-    assert(comp(random, scan, 64, 64));
+    quadtree_scan_y(ref, 13, scan1, &p, 63);
+    assert(sort_issorted(scan1, 63));
+
+    p = 0;
+    quadtree_scan_y(ref, 13, scan2, &p, 62);
+    assert(sort_issorted(scan2, 62));
+
+    p = 0;
+    quadtree_scan_y(ref, 13, scan3, &p, 61);
+    assert(sort_issorted(scan3, 61));
 
     return 0;
 }

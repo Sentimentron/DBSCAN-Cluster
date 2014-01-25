@@ -8,10 +8,13 @@ IF(NOT CMAKE_BUILD_TYPE)
               FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET (CMAKE_C_FLAGS "-pedantic -std=c99 -O0 -ggdb")
+SET (CMAKE_C_FLAGS "-pedantic -std=c99 -O3 -ggdb -march=native")
 SET (CMAKE_LD_FLAGS "-static -g")
 
 add_definitions(-Wall -W -g -O0)
+
+add_executable (test_neighbour_distance test_neighbour_distance.c neighbours.c bitvec.c quadtree.c)
+add_test(test_neighbour_distance test_neighbour_distance)
 
 add_executable (test_bitvec_alloc test_bitvec_alloc.c bitvec.c)
 add_test(test_bitvec_alloc test_bitvec_alloc)
@@ -57,6 +60,9 @@ add_test (test_quadtree_scan_x test_quadtree_scan_x)
 
 add_executable(test_quadtree_scan_y test_quadtree_scan_y.c quadtree.c)
 add_test (test_quadtree_scan_y test_quadtree_scan_y)
+
+add_executable(test_quadtree_scan_y_sorted test_quadtree_scan_y_sorted.c quadtree.c)
+add_test (test_quadtree_scan_y_sorted test_quadtree_scan_y_sorted)
 
 add_executable(test_quadtree_integrity test_quadtree_integrity.c quadtree.c)
 add_test (test_quadtree_integrity test_quadtree_integrity)
