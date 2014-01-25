@@ -138,7 +138,7 @@ float neighbours_distance (
             i++;
             j++;
         }
-        else if (a[i] > b[j]) {
+        else if (a[i] < b[j]) {
             j++;
         }
         else {
