@@ -27,7 +27,8 @@ int max(int *arr, int len) {
 int sort_issorted(unsigned int *arr, unsigned int items) {
     unsigned cur = 0;
     for (unsigned int i = 0; i < items - (items % 4); i++) {
-        if (arr[i] < cur) {
+        if (!cur) cur = *(arr + i);
+        if (arr[i] > cur) {
             return 0;
         }
         cur = arr[i];
@@ -37,7 +38,7 @@ int sort_issorted(unsigned int *arr, unsigned int items) {
 
 int cmpfunc (const void * a, const void * b)
 {
-   return ( *(int*)a - *(int*)b );
+   return ( *(int*)b - *(int*)a );
 }
 
 int comp(int *arg1, unsigned int *arg2, int length1, int length2) {

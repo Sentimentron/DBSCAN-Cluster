@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "quadtree.h"
+#include "stack.h"
 
 #define NULLCHECK(ptr) if (ptr == NULL) { \
     fprintf(stderr, "%s:%d: %s", \
@@ -255,7 +256,7 @@ void _quadtree_sort_result_array(unsigned int *start, unsigned int *finish) {
     unsigned int *tmp = start;
     while (finish > start) {
         for (tmp = start; tmp < finish; tmp++) {
-            if (*tmp > *(tmp + 1)) {
+            if (*tmp < *(tmp + 1)) {
                 _quadtree_sort_swap(tmp, tmp + 1);
             }
         }
@@ -263,8 +264,56 @@ void _quadtree_sort_result_array(unsigned int *start, unsigned int *finish) {
     }
 }
 
-
 int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size) {
+    linear_stack_t s;
+    int i, j, ret = 0;
+
+    stack_init(&s);
+    stack_realloc(&s, 1);
+    stack_push(&s, n);
+
+    do {
+        QUADTREE_POINT *point;
+        QUADTREE_NODE *cur = (QUADTREE_NODE *)stack_pop(&s);
+
+        if (x < cur->region.nw.x) continue;
+        if (x > cur->region.se.x) continue;
+
+        if (!_quadtree_node_isleaf(cur)) {
+            stack_push(&s, cur->ne);
+            stack_push(&s, cur->se);
+            stack_push(&s, cur->nw);
+            stack_push(&s, cur->sw);
+            continue;
+        }
+
+        for (i = 0, j = *p; i < 4; i++) {
+            // Check each point in this leaf
+            point = cur->points + i;
+            if (point->x != x) continue;
+            if (*p < arr_size) {
+                *(out + *p) = point->y;
+                *p = *p + 1;
+            }
+            else {
+                *p = *p + 1;
+                ret = 1; // Need a bigger array to complete the scan
+                break;
+            }
+        }
+
+        _quadtree_sort_result_array(out + j, out + *p - 1);
+
+        if (ret) break;
+    }
+
+    while(s.storing);
+
+    stack_realloc(&s, 0);
+    return ret;
+
+}
+/*int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size) {
 
     QUADTREE_POINT *point;
     int i, j, ret;
@@ -302,7 +351,7 @@ int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsign
 
     return 0;
 
-}
+}*/
 
 int _quadtree_count_x(QUADTREE_NODE *n, unsigned int x) {
     QUADTREE_POINT *point;
@@ -329,6 +378,56 @@ int _quadtree_count_x(QUADTREE_NODE *n, unsigned int x) {
 }
 
 int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsigned int *p, size_t arr_size) {
+    linear_stack_t s;
+    int i, j, ret = 0;
+
+    stack_init(&s);
+    stack_realloc(&s, 1);
+    stack_push(&s, n);
+
+    do {
+        QUADTREE_POINT *point;
+        QUADTREE_NODE *cur = (QUADTREE_NODE *)stack_pop(&s);
+
+        if (y < n->region.nw.y) return 0;
+        if (y > n->region.se.y) return 0;
+
+        if (!_quadtree_node_isleaf(cur)) {
+            stack_push(&s, cur->nw);
+            stack_push(&s, cur->sw);
+            stack_push(&s, cur->ne);
+            stack_push(&s, cur->se);
+            continue;
+        }
+
+        for (i = 0, j = *p; i < 4; i++) {
+            // Check each point in this leaf
+            point = cur->points + i;
+            if (point->y != y) continue;
+            if (*p < arr_size) {
+                *(out + *p) = point->x;
+                *p = *p + 1;
+            }
+            else {
+                *p = *p + 1;
+                ret = 1; // Need a bigger array to complete the scan
+                break;
+            }
+        }
+
+        _quadtree_sort_result_array(out + j, out + *p - 1);
+
+        if (ret) break;
+    }
+
+    while(s.storing);
+
+    stack_realloc(&s, 0);
+    return ret;
+
+}
+
+/*int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsigned int *p, size_t arr_size) {
 
     QUADTREE_POINT *point;
     int i, j;
@@ -366,7 +465,7 @@ int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsign
 
     return 0;
 
-}
+}*/
 
 int quadtree_scan_x(QUADTREE *tree, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size) {
     return _quadtree_scan_x(tree->root, x, out, p, arr_size);
