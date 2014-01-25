@@ -131,6 +131,22 @@ void bitvec_batch_set_u32(bitvec_t *b, uint32_t *labels, uint32_t count) {
     }
 }
 
+uint64_t bitvec_get_next_offset(bitvec_t *b, uint64_t from) {
+    uint64_t i, cell = BOFF_TO_CELL(from);
+    uint64_t cand;
+    for (; cell < b->size; cell++) {
+        if(!b->storage[cell]) continue;
+        for(i = 0; i < 64; i++) {
+            if(b->storage[cell] & ((uint64_t)1 << i)) {
+                cand = (cell * sizeof(uint64_t) * 8) + i;
+                if (cand <= from) continue;
+                return cand;
+            }
+        }
+    }
+    return b->max_offset;
+}
+
 void bitvec_clear_all(bitvec_t *b) {
     uint64_t max_cell = b->size;
     memset(b->storage, 0, max_cell * sizeof(uint64_t));

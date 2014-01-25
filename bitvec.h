@@ -9,7 +9,7 @@ typedef struct {
     uint64_t        max_offset;
     uint64_t        *storage;
     size_t          size;
-} bitvec_t; 
+} bitvec_t;
 
 int bitvec_check(bitvec_t*, uint64_t);
 void bitvec_set(bitvec_t *, uint64_t);
@@ -21,5 +21,6 @@ void bitvec_union(bitvec_t*, bitvec_t*);
 void bitvec_free(bitvec_t*);
 double bitvec_distance(bitvec_t*, bitvec_t*);
 uint64_t bitvec_popcount(bitvec_t *b);
+uint64_t bitvec_get_next_offset(bitvec_t *b, uint64_t from);
 
 #endif

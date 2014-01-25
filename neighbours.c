@@ -159,6 +159,10 @@ unsigned int neighbours_search (
     unsigned int status, size1, size2;
     QUADTREE *data = (QUADTREE *)dptr;
 
+    _lab1_realloc(2048);
+    _lab2_realloc(2048);
+    _id_realloc(2048);
+
     // Mark the candidate set in the out vector
     if (neighbours_determine_initial_set(out, dptr, current_point, count)) return 1;
 
@@ -179,7 +183,7 @@ unsigned int neighbours_search (
         break;
     }
 
-    for (unsigned int i = 0; i < out->max_offset; i++) {
+    for (unsigned int i = 0; i < out->max_offset; i = bitvec_get_next_offset(out, i)) {
         float distance;
         if (!bitvec_check(out, i)) continue;
 
