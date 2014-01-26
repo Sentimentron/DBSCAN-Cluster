@@ -151,7 +151,7 @@ float neighbours_distance (
 }
 
 unsigned int neighbours_search (
-    bitvec_t *out, bitvec_t *clustered, void *dptr,
+    bitvec_t *out, void *dptr,
     unsigned int current_point,
     float eps, unsigned int *count
     ) {
@@ -183,9 +183,9 @@ unsigned int neighbours_search (
         break;
     }
 
-    for (unsigned int i = 0; i < out->max_offset; i = bitvec_get_next_offset(out, i)) {
+    for (unsigned int i = 0; i < out->max_offset; i++) {
         float distance;
-        if (bitvec_check(clustered, i)) continue;
+        if (!bitvec_check(out, i)) continue;
 
         //fprintf(stderr, "%d %d   %.2f %%\n", i, out->max_offset, i/(float)out->max_offset * 100);
 

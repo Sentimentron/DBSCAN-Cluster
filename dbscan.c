@@ -11,7 +11,6 @@
 int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             float eps, unsigned int minpoints,
             unsigned int (*neighbours_search)(bitvec_t *out,
-            bitvec_t *clustered,
             void *, unsigned int, float, unsigned int *)
     ) {
 
@@ -29,12 +28,9 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
     for (i = 0; i < dlen; i++) {
         count = 0;
 
-        if (i) {
-            fprintf(stderr, "Clustering: %.2f\n", 100.0*bitvec_popcount(visited)/dlen);
-        }
-
         // Already visited this point
         if (bitvec_check(visited, i)) continue;
+        fprintf(stderr, "Cluster: %.2f\n", 100.0*bitvec_popcount(visited)/dlen);
 
         // Mark this point as visited
         bitvec_set(visited, i);
@@ -57,11 +53,12 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
         for (j = 0; j < dlen; j++) {
             if(!bitvec_check(neighbours, j)) continue;
             fprintf(stderr, "Neighbours: %.2f\n", 100.0*j/dlen);
+
             if(!bitvec_check(visited, j)) {
                 bitvec_set(visited, j);
                 count = 0;
                 bitvec_clear_all(neighbours2);
-                if (neighbours_search(neighbours2, clustered, data, j, eps, &count)) {
+                if (neighbours_search(neighbours2, data, j, eps, &count)) {
                     return 1;
                 }
                 if (count >= minpoints) {

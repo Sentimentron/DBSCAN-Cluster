@@ -6,12 +6,28 @@
 typedef struct {
 	unsigned int size;
 	unsigned int storing;
-	uint64_t *storage;
+	void **storage;
 } linear_stack_t;
 
 void stack_init(linear_stack_t *s);
 void stack_realloc(linear_stack_t *s, unsigned int size);
-int stack_push(linear_stack_t *s, uint64_t p);
-uint64_t stack_pop(linear_stack_t *s);
+
+static inline int stack_push(linear_stack_t *s, void *p) {
+
+	if(s->storing > s->size-1) {
+		stack_realloc(s, s->size * 2);
+	}
+
+	*(s->storage + s->storing++) = p;
+	return 0;
+}
+
+static inline void* stack_pop(linear_stack_t *s) {
+	void *ret;
+	if (s->storing == 0) return NULL;
+	ret = *(s->storage + (s->storing-1));
+	s->storing--;
+	return ret;
+}
 
 #endif

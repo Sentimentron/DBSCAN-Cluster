@@ -17,7 +17,7 @@ void stack_realloc(linear_stack_t *s, unsigned int size) {
 	s->size = size;
 }
 
-inline int stack_push(linear_stack_t *s, uint64_t p) {
+/*inline int stack_push(linear_stack_t *s, uint64_t p) {
 
 	if(s->storing > s->size-1) {
 		stack_realloc(s, s->size * 2);
@@ -33,4 +33,4 @@ inline uint64_t stack_pop(linear_stack_t *s) {
 	ret = *(s->storage + (s->storing-1));
 	s->storing--;
 	return ret;
-}
+}*/
