@@ -441,55 +441,65 @@ int _quadtree_count_x(QUADTREE_NODE *n, unsigned int x) {
 }
 
 int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsigned int *p, size_t arr_size) {
-    linear_stack_t s;
+   QUADTREE_POINT *point;
     int i, j, ret = 0;
 
-    stack_init(&s);
-    stack_realloc(&s, 1);
-    stack_push(&s, n);
+    while (1) {
 
-    do {
-        QUADTREE_POINT *point;
-        QUADTREE_NODE *cur = (QUADTREE_NODE *)stack_pop(&s);
+        // End when we reach the root and everything's visited
+        if (n->parent == NULL && n->points == 0xFFFFFFFF) {
+            n->points = NULL;
+            return ret;
+        }
 
-        if (y < cur->region.nw.y) continue;
-        if (y > cur->region.se.y) continue;
-
-        if (!_quadtree_node_isleaf(cur)) {
-            stack_push(&s, cur->nw);
-            stack_push(&s, cur->sw);
-            stack_push(&s, cur->ne);
-            stack_push(&s, cur->se);
+        if (y < n->region.nw.y ||  y > n->region.se.y) {
+            // Out of range, go to parent
+            n = n->parent;
             continue;
         }
 
-        for (i = 0, j = *p; i < 4; i++) {
-            // Check each point in this leaf
-            point = cur->points + i;
-            if (point->y != y) continue;
-            if (*p < arr_size) {
-                *(out + *p) = point->x;
-                *p = *p + 1;
-            }
-            else {
-                *p = *p + 1;
-                ret = 1; // Need a bigger array to complete the scan
-                break;
-            }
+        // Case 1: We've visited everything in this node
+        if (n->points == 0xFFFFFFFF) {
+            n->points = NULL;
+            n = n->parent;
         }
-
-        if (!ret) {
-            _quadtree_sort_result_array(out + j, out + *p - 1);
+        else if (n->points == 0xFEFEFEFE) {
+            // Visited everything except the north-east
+            n->points = 0xFFFFFFFF;
+            n = n->nw;
+        }
+        else if (n->points == 0xFDFDFDFD) {
+            // Need to go to the south-east
+            n->points = 0xFEFEFEFE;
+            n = n->sw;
+        }
+        else if (n->points == 0xFCFCFCFC) {
+            n->points = 0xFDFDFDFD;
+            n = n->ne;
+        }
+        else if (n->points == 0x00000000) {
+            n->points = 0xFCFCFCFC;
+            n = n->se;
         }
         else {
-            break;
+            for (i = 0, j = *p; i < 4; i++) {
+                // Check each point in this leaf
+                point = n->points + i;
+                if (point->y != y) continue;
+                if (*p < arr_size) {
+                    *(out + *p) = point->x;
+                    *p = *p + 1;
+                }
+                else if (!ret) {
+                    *p = *p + 1;
+                    ret = 1; // Need a bigger array to complete the scan
+                }
+            }
+            if (!ret) _quadtree_sort_result_array(out + j, out + *p - 1);
+
+            n = n->parent;
         }
     }
-
-    while(s.storing);
-
-    stack_realloc(&s, 0);
-    return ret;
 
 }
 
