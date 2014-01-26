@@ -389,8 +389,8 @@ int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsign
         QUADTREE_POINT *point;
         QUADTREE_NODE *cur = (QUADTREE_NODE *)stack_pop(&s);
 
-        if (y < n->region.nw.y) return 0;
-        if (y > n->region.se.y) return 0;
+        if (y < cur->region.nw.y) continue;
+        if (y > cur->region.se.y) continue;
 
         if (!_quadtree_node_isleaf(cur)) {
             stack_push(&s, cur->nw);
@@ -415,9 +415,12 @@ int _quadtree_scan_y(QUADTREE_NODE *n, unsigned int y, unsigned int *out, unsign
             }
         }
 
-        _quadtree_sort_result_array(out + j, out + *p - 1);
-
-        if (ret) break;
+        if (!ret) {
+            _quadtree_sort_result_array(out + j, out + *p - 1);
+        }
+        else {
+            break;
+        }
     }
 
     while(s.storing);
