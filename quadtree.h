@@ -11,7 +11,7 @@ typedef struct {
 } QUADTREE_REGION;
 
 typedef struct _QUADTREE_NODE {
-    struct _QUADTREE_NODE *nw, *ne, *sw, *se;
+    struct _QUADTREE_NODE *nw, *ne, *sw, *se, *parent;
     QUADTREE_REGION region;
     QUADTREE_POINT *points;
 } QUADTREE_NODE;

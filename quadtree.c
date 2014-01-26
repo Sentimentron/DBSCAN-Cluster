@@ -52,7 +52,7 @@ int quadtree_alloc(QUADTREE **ref) {
 }
 
 int _quadtree_node_init(QUADTREE_NODE **node, unsigned int minx, unsigned int miny,
-                        unsigned int maxx, unsigned int maxy) {
+                        unsigned int maxx, unsigned int maxy, QUADTREE_NODE *parent) {
     // Unit test: covered by test_quadtree_init.c
     if (_qn_alloc(node)) {
         return 1;
@@ -64,6 +64,7 @@ int _quadtree_node_init(QUADTREE_NODE **node, unsigned int minx, unsigned int mi
     (*node)->region.se.y = maxy;
     (*node)->region.width = maxx - minx + 1;
     (*node)->region.height = maxy - miny + 1;
+    (*node)->parent = parent;
 
     memset((*node)->points, 0xFFFFFFFF, sizeof(QUADTREE_POINT) * 4);
 
@@ -78,7 +79,7 @@ int quadtree_init(QUADTREE **ref, unsigned int xmax, unsigned int ymax) {
         return 1;
     }
 
-    return _quadtree_node_init(&((*ref)->root), 0, 0, xmax, ymax);
+    return _quadtree_node_init(&((*ref)->root), 0, 0, xmax, ymax, NULL);
 }
 
 int _quadtree_node_contains(QUADTREE_NODE *n, unsigned int x, unsigned int y) {
@@ -140,10 +141,10 @@ int _quadtree_node_subdivide(QUADTREE_NODE *n) {
     fprintf(stderr, "%u %u %u %u\n", nw3x, nw3y, se3x, se3y);
     fprintf(stderr, "%u %u %u %u\n", nw4x, nw4y, se4x, se4y);
 */
-    if (_quadtree_node_init(&nw, nw1x, nw1y, se1x, se1y)) return 1;
-    if (_quadtree_node_init(&ne, nw2x, nw2y, se2x, se2y)) return 1;
-    if (_quadtree_node_init(&sw, nw3x, nw3y, se3x, se3y)) return 1;
-    if (_quadtree_node_init(&se, nw4x, nw4y, se4x, se4y)) return 1;
+    if (_quadtree_node_init(&nw, nw1x, nw1y, se1x, se1y, n)) return 1;
+    if (_quadtree_node_init(&ne, nw2x, nw2y, se2x, se2y, n)) return 1;
+    if (_quadtree_node_init(&sw, nw3x, nw3y, se3x, se3y, n)) return 1;
+    if (_quadtree_node_init(&se, nw4x, nw4y, se4x, se4y, n)) return 1;
 
     // Assign the new nodes
     n->nw = nw;
@@ -265,6 +266,68 @@ void _quadtree_sort_result_array(unsigned int *start, unsigned int *finish) {
 }
 
 int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size) {
+    QUADTREE_POINT *point;
+    int i, j, ret = 0;
+
+    while (1) {
+
+        // End when we reach the root and everything's visited
+        if (n->parent == NULL && n->points == 0xFFFFFFFF) {
+            n->points = NULL;
+            return ret;
+        }
+
+        if (x < n->region.nw.x || x > n->region.se.x) {
+            // Out of range, go to parent
+            n = n->parent;
+            continue;
+        }
+
+        // Case 1: We've visited everything in this node
+        if (n->points == 0xFFFFFFFF) {
+            n->points = NULL;
+            n = n->parent;
+        }
+        else if (n->points == 0xFEFEFEFE) {
+            // Visited everything except the north-east
+            n->points = 0xFFFFFFFF;
+            n = n->ne;
+        }
+        else if (n->points == 0xFDFDFDFD) {
+            // Need to go to the south-east
+            n->points = 0xFEFEFEFE;
+            n = n->se;
+        }
+        else if (n->points == 0xFCFCFCFC) {
+            n->points = 0xFDFDFDFD;
+            n = n->nw;
+        }
+        else if (n->points == 0x00000000) {
+            n->points = 0xFCFCFCFC;
+            n = n->sw;
+        }
+        else {
+            for (i = 0, j = *p; i < 4; i++) {
+                // Check each point in this leaf
+                point = n->points + i;
+                if (point->x != x) continue;
+                if (*p < arr_size) {
+                    *(out + *p) = point->y;
+                    *p = *p + 1;
+                }
+                else if (!ret) {
+                    *p = *p + 1;
+                    ret = 1; // Need a bigger array to complete the scan
+                }
+            }
+            if (!ret) _quadtree_sort_result_array(out + j, out + *p - 1);
+
+            n = n->parent;
+        }
+    }
+}
+
+/*int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size) {
     linear_stack_t s;
     int i, j, ret = 0;
 
@@ -312,7 +375,7 @@ int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsign
     stack_realloc(&s, 0);
     return ret;
 
-}
+}*/
 /*int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsigned int *p, size_t arr_size) {
 
     QUADTREE_POINT *point;
