@@ -18,17 +18,17 @@ struct identifier_map_t{
 
 int nextpow2(int x) {
     int i;
-    for (i = 1; i < x; i *= 2); 
+    for (i = 1; i < x; i *= 2);
     return i;
 }
 
 int create_identity_mapping_callback(void *arg, int argc, char **argv, char **col) {
-    
+
     struct identifier_map_t *map = (struct identifier_map_t *) arg;
     uint64_t count = strtoul(argv[0], NULL, 10);
 
     map->offset_to_identifier = malloc(sizeof(uint64_t) * count);
-    
+
     if (map->offset_to_identifier == NULL) {
         fprintf(stderr, "%s\n", "Allocation error!");
         exit(1);
@@ -49,7 +49,7 @@ int insert_identity_mapping_callback(void *arg, int argc, char **argv, char **co
 
     uint64_t identifier;
     struct identifier_map_t *map = (struct identifier_map_t *) arg;
-    
+
     identifier = strtoul(argv[0], NULL, 10);
 
     map->offset_to_identifier[map->offset] = identifier;
@@ -82,7 +82,7 @@ int create_tree_callback(void *arg, int argc, char **argv, char **col) {
 }
 
 int main(int argc, char **argv) {
-    const char * const db_location = "cluster.sqlite";
+    const char * const db_location = "cluster_test.sqlite";
     const char * const count_query = "SELECT MAX(idn) FROM (SELECT DISTINCT document_identifier AS idn FROM temporary_label_clustering)";
     const char * const id_query = "SELECT DISTINCT document_identifier FROM temporary_label_clustering";
     const char * const select_query = "SELECT document_identifier, label FROM temporary_label_clustering";
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     char *zErrMsg = NULL;
     int rc = 0;
     struct identifier_map_t id_map;
-    unsigned int *clusters; 
+    unsigned int *clusters;
 
     // Open the database
     rc = sqlite3_open(db_location, &db);

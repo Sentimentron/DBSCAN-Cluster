@@ -7,7 +7,7 @@
 int _quadtree_node_subdivide(QUADTREE_NODE *n);
 
 int main(int argc, char **argv) {
-    QUADTREE *ref = NULL; 
+    QUADTREE *ref = NULL;
 
     assert(!quadtree_init(&ref, 3, 3));
     assert(quadtree_insert(ref, 0, 0));
@@ -23,28 +23,28 @@ int main(int argc, char **argv) {
     // Check the geometry of each subdivision
     assert(ref->root->nw->region.nw.x == 0);
     assert(ref->root->nw->region.nw.y == 0);
-    assert(ref->root->nw->region.se.x == 1); 
+    assert(ref->root->nw->region.se.x == 1);
     assert(ref->root->nw->region.se.y == 1);
     assert(ref->root->nw->region.width == 2);
     assert(ref->root->nw->region.height == 2);
 
     assert(ref->root->ne->region.nw.x == 2);
     assert(ref->root->ne->region.nw.y == 0);
-    assert(ref->root->ne->region.se.x == 3); 
+    assert(ref->root->ne->region.se.x == 3);
     assert(ref->root->ne->region.se.y == 1);
     assert(ref->root->ne->region.width == 2);
     assert(ref->root->ne->region.height == 2);
 
     assert(ref->root->sw->region.nw.x == 0);
     assert(ref->root->sw->region.nw.y == 2);
-    assert(ref->root->sw->region.se.x == 1); 
+    assert(ref->root->sw->region.se.x == 1);
     assert(ref->root->sw->region.se.y == 3);
     assert(ref->root->sw->region.width == 2);
     assert(ref->root->sw->region.height == 2);
 
     assert(ref->root->se->region.nw.x == 2);
     assert(ref->root->se->region.nw.y == 2);
-    assert(ref->root->se->region.se.x == 3); 
+    assert(ref->root->se->region.se.x == 3);
     assert(ref->root->se->region.se.y == 3);
     assert(ref->root->se->region.width == 2);
     assert(ref->root->se->region.height == 2);
@@ -61,6 +61,11 @@ int main(int argc, char **argv) {
 
     assert(ref->root->se->points[0].x == 3);
     assert(ref->root->se->points[0].y == 3);
+
+    // Reset the tree
+    ref = NULL;
+    assert(!quadtree_init(&ref, 4294967294,4294967294));
+    assert(quadtree_insert(ref, 6, 126));
 
     return 0;
 }
