@@ -82,16 +82,20 @@ int create_tree_callback(void *arg, int argc, char **argv, char **col) {
 }
 
 int main(int argc, char **argv) {
-    const char * const db_location = "cluster_test.sqlite";
+    const char * const db_location = "cluster.sqlite";
     const char * const count_query = "SELECT MAX(idn) FROM (SELECT DISTINCT document_identifier AS idn FROM temporary_label_clustering)";
     const char * const id_query = "SELECT DISTINCT document_identifier FROM temporary_label_clustering";
     const char * const select_query = "SELECT document_identifier, label FROM temporary_label_clustering";
+    const char * const insert_query = "INSERT INTO temporary_label_clusters VALUES (?, ?)";
     QUADTREE *tree = NULL;
     sqlite3 *db = NULL;
     char *zErrMsg = NULL;
     int rc = 0;
     struct identifier_map_t id_map;
     unsigned int *clusters;
+    sqlite3_stmt *insert_statement = NULL;
+
+
 
     // Open the database
     rc = sqlite3_open(db_location, &db);
@@ -130,10 +134,44 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    rc = sqlite3_prepare(db, insert_query, -1, &insert_statement, 0);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "ERROR: failed to prepare statement: '%s'\n", sqlite3_errmsg(db));
+        return 1;
+    }
+
     clusters = calloc(sizeof(unsigned int), id_map.offset);
     fprintf(stderr, "Clustering...");
     assert(!DBSCAN(tree, clusters, id_map.offset, 0.20, 2, &neighbours_search));
     for (int i = 0 ; i < id_map.offset; i++) {
-        printf("%d %d\n", i, clusters[i]);
+        unsigned int cluster = clusters[i];
+        unsigned int identifier = id_map.offset_to_identifier[i];
+
+        // Skip if blank
+        if (!cluster) continue;
+
+        printf("%d %d\n", identifier, cluster);
+        rc = sqlite3_bind_int64(insert_statement, 1, identifier);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "ERROR: failed to bind identifier\n%s", sqlite3_errmsg(db));
+            return 1;
+        }
+        rc = sqlite3_bind_int64(insert_statement, 2, cluster);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "ERROR: failed to bind identifier\n%s", sqlite3_errmsg(db));
+            return 1;
+        }
+        rc = sqlite3_step(insert_statement);
+        if (rc != SQLITE_DONE) {
+            fprintf(stderr, "ERROR: insertion error\n%s", sqlite3_errmsg(db));
+            return 1;
+        }
+        rc = sqlite3_reset(insert_statement);
+        if(rc != SQLITE_OK) {
+            fprintf(stderr, "ERROR: cannot reset statement\n%s", sqlite3_errmsg(db));
+            return 1;
+        }
     }
+
+    sqlite3_close(db);
 }
