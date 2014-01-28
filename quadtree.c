@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -269,6 +270,11 @@ int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsign
     QUADTREE_POINT *point;
     int i, j, ret = 0;
 
+    if (x < n->region.nw.x || x > n->region.se.x) {
+        // Out of range
+        return 0;
+    }
+
     while (1) {
 
         // End when we reach the root and everything's visited
@@ -279,6 +285,7 @@ int _quadtree_scan_x(QUADTREE_NODE *n, unsigned int x, unsigned int *out, unsign
 
         if (x < n->region.nw.x || x > n->region.se.x) {
             // Out of range, go to parent
+            assert(n->parent != NULL);
             n = n->parent;
             continue;
         }
