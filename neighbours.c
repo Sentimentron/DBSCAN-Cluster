@@ -206,7 +206,7 @@ unsigned int neighbours_search (
     size1 = *labels1;
     labels1++;
 
-    for (unsigned int i = 0; i < out->max_offset; i++) {
+    for (unsigned int i = 0; i < out->max_offset; i = bitvec_get_next_offset(out, i)) {
         float distance;
         if (!bitvec_check(out, i)) continue;
         //fprintf(stderr, "Neighbours: %.2f\n", 100.0 * i / out->max_offset);
@@ -227,6 +227,7 @@ unsigned int neighbours_search (
             bitvec_clear(out, i);
             *count = *count - 1;
         }
+        i++;
     }
 
     return 0;

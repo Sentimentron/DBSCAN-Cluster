@@ -1,9 +1,10 @@
 #ifndef _H_DBSCAN
 #define _H_DBSCAN
+#include "quadtree.h"
 #include "bitvec.h"
 
 unsigned int neighbours_search (
-    bitvec_t *out, void *dptr, 
+    bitvec_t *out, void *dptr,
     unsigned int current_point,
     float eps, unsigned int *count
     );

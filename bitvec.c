@@ -139,7 +139,7 @@ uint64_t bitvec_get_next_offset(bitvec_t *b, uint64_t from) {
         for(i = 0; i < 64; i++) {
             if(b->storage[cell] & ((uint64_t)1 << i)) {
                 cand = (cell * sizeof(uint64_t) * 8) + i;
-                if (cand <= from) continue;
+                if (cand < from) continue;
                 return cand;
             }
         }
