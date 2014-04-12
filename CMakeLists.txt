@@ -8,7 +8,7 @@ IF(NOT CMAKE_BUILD_TYPE)
               FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET (CMAKE_C_FLAGS "-pedantic -ffast-math -std=c99 -O3 -ggdb -march=native")
+SET (CMAKE_C_FLAGS "-pedantic -ffast-math -std=c99 -O0 -ggdb -march=native")
 SET (CMAKE_LD_FLAGS "-static -g")
 
 add_definitions(-Wall -W -g)
@@ -86,3 +86,6 @@ add_test (test_dbscan_2a test_dbscan_2a)
 
 add_executable (cluster quadtree.c stack.c dbscan.c bitvec.c cluster.c neighbours.c)
 target_link_libraries(cluster sqlite3)
+
+add_executable(date_cluster date_cluster.c quadtree.c stack.c dbscan.c bitvec.c neighbours.c)
+target_link_libraries(date_cluster sqlite3)

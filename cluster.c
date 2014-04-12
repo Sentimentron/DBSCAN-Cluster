@@ -127,6 +127,7 @@ int main(int argc, char **argv) {
     id_map.cluster_tree = tree;
 
     rc = sqlite3_exec(db, select_query, create_tree_callback, &id_map, &zErrMsg);
+    
     if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);

@@ -67,6 +67,10 @@ int _quadtree_node_init(QUADTREE_NODE **node, unsigned int minx, unsigned int mi
     (*node)->region.height = maxy - miny + 1;
     (*node)->parent = parent;
 
+    if ((*node)->region.width != (*node)->region.height) {
+        assert(0);
+    }
+
     memset((*node)->points, 0xFFFFFFFF, sizeof(QUADTREE_POINT) * 4);
 
     return 0;
