@@ -30,7 +30,7 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
 
         // Already visited this point
         if (bitvec_check(visited, i)) continue;
-        fprintf(stderr, "Cluster: %.2f\n", 100.0*bitvec_popcount(visited)/dlen);
+        fprintf(stderr, "Cluster: %.2f\n", 100.0*i/dlen);
 
         // Mark this point as visited
         bitvec_set(visited, i);
@@ -52,7 +52,7 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
         // Expand the cluster
         for (j = 0; j < dlen; j++) {
             if(!bitvec_check(neighbours, j)) continue;
-            fprintf(stderr, "Neighbours: %.2f\n", 100.0*j/dlen);
+            if (j % 100 == 0) fprintf(stderr, "Neighbours: %.2f\n", 100.0*j/dlen);
 
             if(!bitvec_check(visited, j)) {
                 bitvec_set(visited, j);
@@ -64,6 +64,7 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
                 if (count >= minpoints) {
                     // Merge two bitarrays
                     bitvec_union(neighbours, neighbours2);
+                    j = 0;
                 }
             }
             if (!bitvec_check(clustered, j)) {
