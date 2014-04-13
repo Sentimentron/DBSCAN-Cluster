@@ -98,10 +98,11 @@ int main(int argc, char **argv) {
         if (insert_new) {
             if (ofti_cur >= ofti_max-1) {
                 // Reallocate 
-                ofti_max += 64; 
-                if((realloc(offset_to_identifier_map, sizeof(uint64_t) * ofti_cur)) == NULL) {
-                fprintf(stderr, "Reallocation failure!\n");
-                exit(1);
+                ofti_max += 64;
+                offset_to_identifier_map = realloc(offset_to_identifier_map, sizeof(uint64_t) * ofti_max);
+                if (offset_to_identifier_map == NULL) { 
+                    fprintf(stderr, "Reallocation failure!\n");
+                    exit(1);
                 }
             }
             offset_to_identifier_map[ofti_cur] = new_identifier;

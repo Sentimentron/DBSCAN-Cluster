@@ -52,7 +52,6 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
         // Expand the cluster
         for (j = 0; j < dlen; j++) {
             if(!bitvec_check(neighbours, j)) continue;
-            if (j % 100 == 0) fprintf(stderr, "Neighbours: %.2f\n", 100.0*j/dlen);
 
             if(!bitvec_check(visited, j)) {
                 bitvec_set(visited, j);
