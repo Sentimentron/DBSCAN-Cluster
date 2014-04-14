@@ -45,6 +45,7 @@ def main():
     pool = mp.Pool(1) 
     robj = pool.imap_unordered(lambda x: process(x, db, result_queue), t_queue)
 
+    output_file = open('output.tmp','w')
 
     # TODO: write result processing 
     max_cluster_id = 0
@@ -55,7 +56,6 @@ def main():
             if len(line) == 0:
                 continue
             identifier, _, cluster = line.partition(' ')
-            sql = """INSERT INTO temporary_label_clusters VALUES (?, ?)"""
             identifier = int(identifier)
             cluster = int(cluster)
             if cluster > tmp_cluster_id:
@@ -63,8 +63,8 @@ def main():
             if cluster == 0:
                 continue
             cluster += max_cluster_id
-            cursor.execute(sql, (identifier, cluster))
-        conn.commit()
+            print >> output_file, identifier, cluster 
+
         max_cluster_id += tmp_cluster_id
 
 if __name__ == "__main__":
