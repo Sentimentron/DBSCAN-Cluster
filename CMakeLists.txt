@@ -1,7 +1,11 @@
+#
+
 cmake_minimum_required(VERSION 2.6)
 project(Cluster C)
 enable_testing()
 
+#
+# Flags and definitions
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug CACHE STRING
         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
@@ -13,6 +17,8 @@ SET (CMAKE_LD_FLAGS "-static -g")
 
 add_definitions(-Wall -W -g)
 
+#
+# Tests
 add_executable (test_stack test_stack.c stack.c)
 add_test (test_stack test_stack)
 
@@ -84,8 +90,24 @@ add_test (test_dbscan_2 test_dbscan_2)
 add_executable(test_dbscan_2a test_dbscan_2.c neighbours.c quadtree.c stack.c dbscan.c bitvec.c)
 add_test (test_dbscan_2a test_dbscan_2a)
 
+#
+# Two standard applications
 add_executable (cluster quadtree.c stack.c dbscan.c bitvec.c cluster.c neighbours.c)
 target_link_libraries(cluster sqlite3)
 
 add_executable(date_cluster date_cluster.c quadtree.c stack.c dbscan.c bitvec.c neighbours.c)
 target_link_libraries(date_cluster sqlite3)
+
+#
+# Python SWIG bindings
+FIND_PACKAGE(SWIG REQUIRED)
+INCLUDE(${SWIG_USE_FILE})
+
+FIND_PACKAGE(PythonLibs)
+INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+
+SET(CMAKE_SWIG_FLAGS)
+SET_SOURCE_FILES_PROPERTIES(pydbscan.i PROPERTIES SWIG_FLAGS "-includeall")
+SWIG_ADD_MODULE(pydbscan python pydbscan.i pydbscan.c dbscan.c quadtree.c bitvec.c neighbours.c)
+SWIG_LINK_LIBRARIES(pydbscan ${PYTHON_LIBRARIES})
