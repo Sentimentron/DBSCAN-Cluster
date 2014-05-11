@@ -18,8 +18,10 @@ if __name__ == "__main__":
     assert pydbscan.quadtree_insert(tree, 5, 4)
 
     gen1 = pydbscan.pyDBSCAN(tree, 6, 0.0005, 2)
-    gen2 = pydbscan.pyDBSCAN(tree, 6, 0.666, 2)
-    gen3 = pydbscan.pyDBSCAN(tree, 6, 0.666, 3)
+    gen2 = pydbscan.pyDBSCAN(tree, 6, 0.67, 2)
+    gen3 = pydbscan.pyDBSCAN(tree, 6, 0.67, 3)
+
+    gen4 = pydbscan.pyDBSCAN(tree, 6, 0.67, 2)
 
     print gen1
     print gen2
@@ -28,4 +30,6 @@ if __name__ == "__main__":
     assert gen1 == expected_clusters1
     assert gen2 == expected_clusters2
     assert gen3 == expected_clusters3
+
+    assert gen4 == expected_clusters2
 

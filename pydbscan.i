@@ -16,6 +16,6 @@ extern QUADTREE *create_quadtree(int width, int height);
 %}
 
 extern unsigned int *pyDBSCAN(void *data, unsigned int dlen,
-  float eps, unsigned int minpoints
+  double eps, unsigned int minpoints
 );
 

@@ -19,7 +19,7 @@ QUADTREE *create_quadtree(int width, int height) {
 }
 
 unsigned int *pyDBSCAN(QUADTREE *data, unsigned int dlen,
-            float eps, unsigned int minpoints
+            double eps, unsigned int minpoints
     )
 {
     unsigned int i;
