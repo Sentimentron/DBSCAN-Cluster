@@ -31,4 +31,7 @@ int _quadtree_node_isleaf(QUADTREE_NODE *n);
 
 int quadtree_count_x(QUADTREE *tree, unsigned int x);
 
+QUADTREE *create_quadtree(int, int);
+
 #endif
+

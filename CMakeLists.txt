@@ -12,7 +12,7 @@ IF(NOT CMAKE_BUILD_TYPE)
               FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET (CMAKE_C_FLAGS "-pedantic -ffast-math -std=c99 -O3 -ggdb -march=native")
+SET (CMAKE_C_FLAGS "-pedantic -Wconversion -ffast-math -std=c99 -g -ggdb -march=native")
 SET (CMAKE_LD_FLAGS "-static -g")
 
 add_definitions(-Wall -W -g)

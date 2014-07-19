@@ -24,3 +24,4 @@ uint64_t bitvec_popcount(bitvec_t *b);
 uint64_t bitvec_get_next_offset(bitvec_t *b, uint64_t from);
 
 #endif
+

@@ -15,4 +15,6 @@ int DBSCAN(void *data, unsigned int *d, unsigned int dlen,
             void *, unsigned int, float, unsigned int *)
     );
 
+unsigned int *pyDBSCAN(QUADTREE*, unsigned int, double, unsigned int);
+
 #endif
